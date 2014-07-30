@@ -5,10 +5,18 @@ package com.cornfluence.proteus
  * Created by charlesahunt on 7/29/14.
  */
 
-class Driver(connectionURL : String = "http://localhost:8529/", databaseName : String) {
+class Driver(host : String = "localhost", port : String = 8529, https : Boolean = false, databaseName : String) {
 
-	val connection = None //todo
-	val connectionMap: Map[String,String] = Map("connectionURL" -> connectionURL, "dbName" -> databaseName)
+//	 val connectionTimeout
+//	 val socketTimeout
+//	 val keepAliveTimeout
+//	 val maxTotalConnection
+//	 val maxPerConnection
+//	 val batchSize
+//	 val staleConnectionCheck
+//	 val socketKeepAlive
+
+	val connection = None
 
 	def isConnection():Boolean = {
 		if(connection.isEmpty) false else true
