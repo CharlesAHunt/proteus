@@ -34,9 +34,9 @@ class Driver(hostMachine : String = "localhost", port : Int = 8529, https : Bool
 
     val result = Http(req OK as.String).either
     result match {
-      case Right(content)         => println("Content: " + content)
-      case Left(StatusCode(404))  => println("Not found")
-      case Left(StatusCode(code)) => println("Some other code: " + code.toString)
+      case content         => println("Content: " + content)
+      case StatusCode(404) => println("Not found")
+      case StatusCode(code) => println("Some other code: " + code.toString)
     }
   }
 }
