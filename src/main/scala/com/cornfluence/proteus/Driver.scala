@@ -39,4 +39,5 @@ class Driver(hostMachine : String = "localhost", port : Int = 8529, https : Bool
       case StatusCode(code) => println("Some other code: " + code.toString)
     }
   }
+  
 }
