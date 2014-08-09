@@ -26,18 +26,18 @@ class Driver(hostMachine : String = "localhost", port : Int = 8529, https : Bool
 		if(connection.isEmpty) false else true
 	}
 
-  def getDatabases() = {
-    val req = arrangoHost.GET
-      //.setBody("")
-      .addQueryParameter("commit", "true")
-      .addHeader("Content-type", "application/json")
-
-    val result = Http(req OK as.String).either
-    result match {
-      case content         => println("Content: " + content)
-      case StatusCode(404) => println("Not found")
-      case StatusCode(code) => println("Some other code: " + code.toString)
-    }
+  def getDatabases():String = {
+    val path =  arrangoHost / "_api" / "database"
+    val req = path.GET
+    val result = Http(req OK as.String)
+    result.onSuccess { case s => return s}
+    result.onFailure { case e => e.printStackTrace}
+    ""
   }
-  
 }
+
+case class Result(
+  result : List[String],
+  error : Boolean,
+  code : Int
+)
