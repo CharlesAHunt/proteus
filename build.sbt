@@ -1,11 +1,15 @@
-name := "com.cornfluence.proteus"
+name := "proteus"
 
-version := "0.1.0"
+organization := "com.cornfluence"
+
+description := "Scala driver for ArangoDB"
+
+version := "0.1.2"
 
 scalaVersion := "2.11.2"
 
 resolvers ++= Seq(
-  "OSS"						at "http://oss.sonatype.org/content/repositories/releases"
+  "OSS"  at "http://oss.sonatype.org/content/repositories/releases"
 )
 
 libraryDependencies ++= {
