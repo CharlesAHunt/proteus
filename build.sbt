@@ -1,4 +1,4 @@
-name := "com/cornfluence/proteus"
+name := "com.cornfluence.proteus"
 
 version := "0.1.0"
 
@@ -11,8 +11,8 @@ resolvers ++= Seq(
 libraryDependencies ++= {
   Seq(
     "net.databinder.dispatch" %% "dispatch-core" % "0.11.1",
-    "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
-    "co.blocke"		% "scalajack_2.11"			% "2.0.2"
+    "org.scalatest" %% "scalatest" % "2.2.1" % "test",
+    "co.blocke"	  %% "scalajack" % "2.0.2"
   )
 }
 
