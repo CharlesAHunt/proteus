@@ -11,7 +11,7 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
 
    def isConnection = connection.nonEmpty
 
-   def getDatabases: Future[List[String]] = {
+   def getDatabaseList: Future[List[String]] = {
       val path = arangoHost / "_api" / "database"
       val req = path.GET
       Http(req OK as.String) map {x => ScalaJack.read[ResultList](x).result}

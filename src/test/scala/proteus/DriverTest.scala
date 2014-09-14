@@ -13,7 +13,7 @@ class DriverTest extends FunSpec {
          it("should properly retrieve all databases in Arango") {
 
             val driver = new Driver(databaseName = "test")
-            val result = driver.getDatabases
+            val result = driver.getDatabaseList
             result.onComplete { x => assert(x.getOrElse(List.empty).nonEmpty)}
          }
       }
