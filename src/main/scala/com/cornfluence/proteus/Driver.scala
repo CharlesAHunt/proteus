@@ -17,16 +17,64 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
       Http(req OK as.String) map {x => ScalaJack.read[ResultList](x).result}
    }
 
-   def createDatabase(dbName:String, users : Option[List[User]]): Future[Boolean] = {
+   def createDatabase(dbName:String, users : Option[List[User]]): Future[String] = {
       val path = arangoHost / "_api" / "database"
       val req = path.setBody(ScalaJack.render(Database(dbName, users))).POST
-      Http(req OK as.String) map {x => ScalaJack.read[ResultBoolean](x).result}
+      Http(req OK as.String) map { x =>
+         val result = ScalaJack.read[ResultMessage](x)
+         result.error match {
+            case true => result.errorMessage.get
+            case false => "ok"
+         }
+      }
    }
 
-   def deleteDatabase(dbName:String): Future[Boolean] = {
+   def deleteDatabase(dbName:String): Future[String] = {
       val path = arangoHost / "_api" / "database" / dbName
       val req = path.DELETE
-      Http(req OK as.String) map {x => ScalaJack.read[ResultBoolean](x).result}
+      Http(req OK as.String) map { x =>
+         val result = ScalaJack.read[ResultMessage](x)
+         result.error match {
+            case true => result.errorMessage.get
+            case false => "ok"
+         }
+      }
+   }
+
+   def createDocument(db : String, documentName:String, collection: String, body : String): Future[String] = {
+      val path = arangoHost / "_db" / db / "_api" / "document"
+      val req = path.addQueryParameter("collection", collection).addQueryParameter("createCollection","true").setBody(body).POST
+      Http(req OK as.String) map { x =>
+         val result = ScalaJack.read[ResultMessage](x)
+         result.error match {
+            case true => result.errorMessage.get
+            case false => "ok"
+         }
+      }
+   }
+
+   def getDocument(db : String, documentName:String): Future[String] = {
+      val path = arangoHost / "_db" / db /"_api" / "document"
+      val req = path.GET
+      Http(req OK as.String) map {x =>
+         val result = ScalaJack.read[ResultMessage](x)
+         result.error match {
+            case true => result.errorMessage.get
+            case false => "todo get document body"
+         }
+      }
+   }
+
+   def removeDocument(db : String, documentName:String): Future[String] = {
+      val path = arangoHost / "_db" / db /"_api" / "document"
+      val req = path.DELETE
+      Http(req OK as.String) map {x =>
+         val result = ScalaJack.read[ResultMessage](x)
+         result.error match {
+            case true => result.errorMessage.get
+            case false => "ok"
+         }
+      }
    }
 }
 
@@ -36,10 +84,15 @@ case class ResultList(
    code: Int
 )
 
-case class ResultBoolean(
-   result: Boolean,
+case class ResultMessage(
    error: Boolean,
-   code: Int
+   errorMessage: Option[String],
+   result: Option[Boolean],
+   code: Option[Int],
+   errorNum : Option[Int],
+   _id: Option[String],
+   _rev: Option[String],
+   _key: Option[String]
 )
 
 case class Database(
