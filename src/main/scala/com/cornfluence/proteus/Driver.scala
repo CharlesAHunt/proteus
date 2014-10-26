@@ -41,7 +41,7 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
       }
    }
 
-   def createDocument(db : String, documentName:String, collection: String, body : String): Future[String] = {
+   def createDocument(db : String, collection: String, body : String): Future[String] = {
       val path = arangoHost / "_db" / db / "_api" / "document"
       val req = path.addQueryParameter("collection", collection).addQueryParameter("createCollection","true").setBody(body).POST
       Http(req OK as.String) map { x =>

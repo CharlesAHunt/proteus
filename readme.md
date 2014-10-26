@@ -20,4 +20,4 @@ Create a database:
 Create a document:
             
             val driver = new Driver(databaseName = "test")
-            val result = driver.createDocument("test","testDocument","testCollection","""{ "Hello": "World" }""")
+            val result = driver.createDocument("test","testCollection","""{ "Hello": "World" }""")
