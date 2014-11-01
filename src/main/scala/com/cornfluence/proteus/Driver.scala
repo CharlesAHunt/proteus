@@ -3,6 +3,8 @@ package com.cornfluence.proteus
 import co.blocke.scalajack.ScalaJack
 import dispatch._, Defaults._
 
+import scala.util.{Failure, Success}
+
 class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String) {
 
    val arangoHost = if (https) host(hostMachine, port).secure else host(hostMachine, port)
@@ -60,6 +62,12 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
          val result = ScalaJack.read[Documents](x)
          result.documents
       }
+   }
+
+   def getDocument(db : String, collectionName : String, documentID : String): Future[String] = {
+      val path = arangoHost / "_db" / db /"_api" / "document" / collectionName / documentID
+      val req = path.GET
+      Http(req OK as.String)
    }
 
    def removeDocument(db : String, documentName:String): Future[String] = {

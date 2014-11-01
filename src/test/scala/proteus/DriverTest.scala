@@ -13,17 +13,17 @@ class DriverTest extends FunSpec {
    val testCollection = "testCollection"
 
    describe("==============\n| Driver Test |\n==============") {
-      describe("Create Database") {
-         it("should create new Database") {
-
-            val driver = new Driver(databaseName = testDB)
-            val result = driver.createDatabase(testDB, Some(List(User("charles", "password"))))
-            result.onComplete {
-               case Success(res) => res should include("ok")
-               case Failure(t) => fail(t)
-            }
-         }
-      }
+//      describe("Create Database") {
+//         it("should create new Database") {
+//
+//            val driver = new Driver(databaseName = testDB)
+//            val result = driver.createDatabase(testDB, Some(List(User("charles", "password"))))
+//            result.onComplete {
+//               case Success(res) => res should include("ok")
+//               case Failure(t) => fail(t)
+//            }
+//         }
+//      }
       describe("Get Databases") {
          it("should properly retrieve all databases in Arango") {
 
@@ -57,16 +57,40 @@ class DriverTest extends FunSpec {
             }
          }
       }
-      describe("Delete Database") {
-         it("should delete Database") {
+      describe("Retrieve one document by handle") {
+         it("should retrieve one document from the test collection") {
+
             val driver = new Driver(databaseName = testDB)
-            val result = driver.deleteDatabase(testDB)
+            val result = driver.getDocument(testDB, "testCollection","15107652942")
+
             result.onComplete {
-               case Success(res) => res should include("ok")
-               case Failure(t) => fail()
+               case Success(res) => res should include ("""{"Hello":"World","_id":"testCollection/15107652942""")
+               case Failure(t) => fail(t)
             }
          }
       }
+      describe("Remove a document by handle") {
+         it("should remove one document from the test collection") {
+
+//            val driver = new Driver(databaseName = testDB)
+//            val result = driver.getDocument(testDB, "testCollection","15107652942")
+//
+//            result.onComplete {
+//               case Success(res) => res should include ("""{"Hello":"World","_id":"testCollection/15107652942""")
+//               case Failure(t) => fail(t)
+//            }
+         }
+      }
+//      describe("Delete Database") {
+//         it("should delete Database") {
+//            val driver = new Driver(databaseName = testDB)
+//            val result = driver.deleteDatabase(testDB)
+//            result.onComplete {
+//               case Success(res) => res should include("ok")
+//               case Failure(t) => fail()
+//            }
+//         }
+//      }
    }
 }
 
