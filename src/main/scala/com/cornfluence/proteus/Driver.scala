@@ -53,17 +53,13 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
       }
    }
 
-   def getAllDocuments(db : String, collectionName : String): Future[String] = {
+   def getAllDocuments(db : String, collectionName : String): Future[List[String]] = {
       val path = arangoHost / "_db" / db /"_api" / "document"
       val req = path.addQueryParameter("collection", collectionName).GET
-//      Http(req OK as.String) map {x =>
-//         val result = ScalaJack.read[ResultMessage](x)
-//         result.error match {
-//            case true => throw new Exception(result.errorMessage.get)
-//            case false => "todo get document body"
-//         }
-//      }
-      Http(req OK as.String)
+      Http(req OK as.String) map {x =>
+         val result = ScalaJack.read[Documents](x)
+         result.documents
+      }
    }
 
    def removeDocument(db : String, documentName:String): Future[String] = {
@@ -99,6 +95,10 @@ case class ResultMessage(
 case class Database(
    name: String,
    users: Option[List[User]]
+)
+
+case class Documents(
+   documents: List[String]
 )
 
 case class User(

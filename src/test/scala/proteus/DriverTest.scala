@@ -52,7 +52,7 @@ class DriverTest extends FunSpec {
             val result = driver.getAllDocuments(testDB, "testCollection")
 
             result.onComplete {
-               case Success(res) => res should include ("""{ "documents" : [""")
+               case Success(res) => res.head should include ("/_api/document/testCollection/")
                case Failure(t) => fail(t)
             }
          }
