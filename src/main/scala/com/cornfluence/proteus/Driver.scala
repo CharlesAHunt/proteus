@@ -23,7 +23,7 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
       Http(req OK as.String) map { x =>
          val result = ScalaJack.read[ResultMessage](x)
          result.error match {
-            case true => result.errorMessage.get
+            case true => throw new Exception(result.errorMessage.get)
             case false => "ok"
          }
       }
@@ -35,7 +35,7 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
       Http(req OK as.String) map { x =>
          val result = ScalaJack.read[ResultMessage](x)
          result.error match {
-            case true => result.errorMessage.get
+            case true => throw new Exception(result.errorMessage.get)
             case false => "ok"
          }
       }
@@ -47,22 +47,23 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
       Http(req OK as.String) map { x =>
          val result = ScalaJack.read[ResultMessage](x)
          result.error match {
-            case true => result.errorMessage.get
+            case true => throw new Exception(result.errorMessage.get)
             case false => "ok"
          }
       }
    }
 
-   def getDocument(db : String, documentName:String): Future[String] = {
+   def getAllDocuments(db : String, collectionName : String): Future[String] = {
       val path = arangoHost / "_db" / db /"_api" / "document"
-      val req = path.GET
-      Http(req OK as.String) map {x =>
-         val result = ScalaJack.read[ResultMessage](x)
-         result.error match {
-            case true => result.errorMessage.get
-            case false => "todo get document body"
-         }
-      }
+      val req = path.addQueryParameter("collection", collectionName).GET
+//      Http(req OK as.String) map {x =>
+//         val result = ScalaJack.read[ResultMessage](x)
+//         result.error match {
+//            case true => throw new Exception(result.errorMessage.get)
+//            case false => "todo get document body"
+//         }
+//      }
+      Http(req OK as.String)
    }
 
    def removeDocument(db : String, documentName:String): Future[String] = {
@@ -71,7 +72,7 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
       Http(req OK as.String) map {x =>
          val result = ScalaJack.read[ResultMessage](x)
          result.error match {
-            case true => result.errorMessage.get
+            case true => throw new Exception(result.errorMessage.get)
             case false => "ok"
          }
       }

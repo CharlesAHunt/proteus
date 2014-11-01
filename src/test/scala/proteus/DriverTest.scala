@@ -2,13 +2,28 @@ package proteus
 
 import com.cornfluence.proteus.{User, Driver}
 import org.scalatest.FunSpec
+import org.scalatest.Matchers._
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import scala.util.{Success, Failure}
 
 class DriverTest extends FunSpec {
 
+   val testDB = "test"
+   val testCollection = "testCollection"
+
    describe("==============\n| Driver Test |\n==============") {
+      describe("Create Database") {
+         it("should create new Database") {
+
+            val driver = new Driver(databaseName = testDB)
+            val result = driver.createDatabase(testDB, Some(List(User("charles", "password"))))
+            result.onComplete {
+               case Success(res) => res should include("ok")
+               case Failure(t) => fail(t)
+            }
+         }
+      }
       describe("Get Databases") {
          it("should properly retrieve all databases in Arango") {
 
@@ -17,35 +32,37 @@ class DriverTest extends FunSpec {
             result.onComplete { x => assert(x.getOrElse(List.empty).nonEmpty)}
          }
       }
-      describe("Create Database") {
-         it("should create new Database") {
 
-            val driver = new Driver(databaseName = "test")
-            val result = driver.createDatabase("test", Some(List(User("charles", "password"))))
-            result.onComplete {
-               case Success(res) =>
-               case Failure(t) => fail()
-            }
-         }
-      }
       describe("Create Document") {
          it("should create document in test collection") {
 
-            val driver = new Driver(databaseName = "test")
-            val result = driver.createDocument("test","testCollection","""{ "Hello": "World" }""")
+            val driver = new Driver(databaseName = testDB)
+            val result = driver.createDocument(testDB,"testCollection","""{ "Hello": "World" }""")
 
             result.onComplete {
-               case Success(res) =>
-               case Failure(t) => fail()
+               case Success(res) => res should include("ok")
+               case Failure(t) => fail(t)
+            }
+         }
+      }
+      describe("Retrieve All Documents") {
+         it("should retrieve all documents in test collection") {
+
+            val driver = new Driver(databaseName = testDB)
+            val result = driver.getAllDocuments(testDB, "testCollection")
+
+            result.onComplete {
+               case Success(res) => res should include ("""{ "documents" : [""")
+               case Failure(t) => fail(t)
             }
          }
       }
       describe("Delete Database") {
          it("should delete Database") {
-            val driver = new Driver(databaseName = "test")
-            val result = driver.deleteDatabase("test")
+            val driver = new Driver(databaseName = testDB)
+            val result = driver.deleteDatabase(testDB)
             result.onComplete {
-               case Success(res) =>
+               case Success(res) => res should include("ok")
                case Failure(t) => fail()
             }
          }

@@ -8,6 +8,8 @@ version := "0.1.2"
 
 scalaVersion := "2.11.2"
 
+parallelExecution in Test := false
+
 resolvers ++= Seq(
   "OSS"  at "http://oss.sonatype.org/content/repositories/releases"
 )
