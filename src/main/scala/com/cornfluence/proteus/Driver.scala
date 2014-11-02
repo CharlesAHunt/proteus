@@ -84,8 +84,6 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
 
 }
 
-//"error":false,"_id":"testCollection/15683757257","_rev":"15683757257","_key":"15683757257"
-
 case class ResultList(
    result: List[String],
    error: Boolean,
