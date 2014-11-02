@@ -3,27 +3,29 @@ package proteus
 import com.cornfluence.proteus.{User, Driver}
 import org.scalatest.FunSpec
 import org.scalatest.Matchers._
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Await, ExecutionContext}
 import ExecutionContext.Implicits.global
 import scala.util.{Success, Failure}
+import scala.concurrent.duration._
 
 class DriverTest extends FunSpec {
 
    val testDB = "test"
    val testCollection = "testCollection"
+   var testDocID = ""
 
    describe("==============\n| Driver Test |\n==============") {
-//      describe("Create Database") {
-//         it("should create new Database") {
-//
-//            val driver = new Driver(databaseName = testDB)
-//            val result = driver.createDatabase(testDB, Some(List(User("charles", "password"))))
-//            result.onComplete {
-//               case Success(res) => res should include("ok")
-//               case Failure(t) => fail(t)
-//            }
-//         }
-//      }
+      describe("Create Database") {
+         it("should create new Database") {
+
+            val driver = new Driver(databaseName = testDB)
+            val result = driver.createDatabase(testDB, Some(List(User("charles", "password"))))
+            result.onComplete {
+               case Success(res) => res should include("ok")
+               case Failure(t) => fail(t)
+            }
+         }
+      }
       describe("Get Databases") {
          it("should properly retrieve all databases in Arango") {
 
@@ -39,8 +41,11 @@ class DriverTest extends FunSpec {
             val driver = new Driver(databaseName = testDB)
             val result = driver.createDocument(testDB,"testCollection","""{ "Hello": "World" }""")
 
+            val res = Await.result(result, 5 second)
+            testDocID = res
+
             result.onComplete {
-               case Success(res) => res should include("ok")
+               case Success(res) => res.toLong should be > 0L ;
                case Failure(t) => fail(t)
             }
          }
@@ -61,10 +66,10 @@ class DriverTest extends FunSpec {
          it("should retrieve one document from the test collection") {
 
             val driver = new Driver(databaseName = testDB)
-            val result = driver.getDocument(testDB, "testCollection","15107652942")
+            val result = driver.getDocument(testDB, "testCollection", testDocID)
 
             result.onComplete {
-               case Success(res) => res should include ("""{"Hello":"World","_id":"testCollection/15107652942""")
+               case Success(res) => res should include ("""{"Hello":"World","_id":"testCollection/"""+testDocID)
                case Failure(t) => fail(t)
             }
          }
@@ -72,25 +77,25 @@ class DriverTest extends FunSpec {
       describe("Remove a document by handle") {
          it("should remove one document from the test collection") {
 
-//            val driver = new Driver(databaseName = testDB)
-//            val result = driver.getDocument(testDB, "testCollection","15107652942")
-//
-//            result.onComplete {
-//               case Success(res) => res should include ("""{"Hello":"World","_id":"testCollection/15107652942""")
-//               case Failure(t) => fail(t)
-//            }
+            val driver = new Driver(databaseName = testDB)
+            val result = driver.removeDocument(testDB, "testCollection",testDocID)
+
+            result.onComplete {
+               case Success(res) => res should include ("ok")
+               case Failure(t) => fail(t)
+            }
          }
       }
-//      describe("Delete Database") {
-//         it("should delete Database") {
-//            val driver = new Driver(databaseName = testDB)
-//            val result = driver.deleteDatabase(testDB)
-//            result.onComplete {
-//               case Success(res) => res should include("ok")
-//               case Failure(t) => fail()
-//            }
-//         }
-//      }
+      describe("Delete Database") {
+         it("should delete Database") {
+            val driver = new Driver(databaseName = testDB)
+            val result = driver.deleteDatabase(testDB)
+            result.onComplete {
+               case Success(res) => res should include("ok")
+               case Failure(t) => fail()
+            }
+         }
+      }
    }
 }
 

@@ -3,12 +3,12 @@ package com.cornfluence.proteus
 import co.blocke.scalajack.ScalaJack
 import dispatch._, Defaults._
 
-import scala.util.{Failure, Success}
-
+/*
+*  ArangoDB Driver: Defaults to localhost:8529 unless otherwise specified
+*/
 class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String) {
 
    val arangoHost = if (https) host(hostMachine, port).secure else host(hostMachine, port)
-
    val connection = None
 
    def isConnection = connection.nonEmpty
@@ -50,7 +50,7 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
          val result = ScalaJack.read[ResultMessage](x)
          result.error match {
             case true => throw new Exception(result.errorMessage.get)
-            case false => "ok"
+            case false => result._key.get
          }
       }
    }
@@ -70,10 +70,10 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
       Http(req OK as.String)
    }
 
-   def removeDocument(db : String, documentName:String): Future[String] = {
-      val path = arangoHost / "_db" / db /"_api" / "document"
+   def removeDocument(db : String, collectionName : String, documentID : String): Future[String] = {
+      val path = arangoHost / "_db" / db /"_api" / "document" / collectionName / documentID
       val req = path.DELETE
-      Http(req OK as.String) map {x =>
+      Http(req OK as.String).map { x =>
          val result = ScalaJack.read[ResultMessage](x)
          result.error match {
             case true => throw new Exception(result.errorMessage.get)
@@ -81,7 +81,10 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
          }
       }
    }
+
 }
+
+//"error":false,"_id":"testCollection/15683757257","_rev":"15683757257","_key":"15683757257"
 
 case class ResultList(
    result: List[String],
