@@ -7,7 +7,7 @@ The name Proteus is a nod to the versatile and many-formed nature of ArangoDB.
 
 ## Install
 
-ArangoDB is not yet in a public nexus. Coming soon...
+libraryDependencies += "com.cornfluence" % "proteus_2.11" % "0.2.0-SNAPSHOT"
 
 
 ## Examples

@@ -9,9 +9,6 @@ import dispatch._, Defaults._
 class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String) {
 
    val arangoHost = if (https) host(hostMachine, port).secure else host(hostMachine, port)
-   val connection = None
-
-   def isConnection = connection.nonEmpty
 
    def getDatabaseList: Future[List[String]] = {
       val path = arangoHost / "_api" / "database"
@@ -43,9 +40,9 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
       }
    }
 
-   def createDocument(db : String, collection: String, body : String): Future[String] = {
+   def createDocument(db : String, collection: String, documentString : String, createIfNotExists : Boolean = true): Future[String] = {
       val path = arangoHost / "_db" / db / "_api" / "document"
-      val req = path.addQueryParameter("collection", collection).addQueryParameter("createCollection","true").setBody(body).POST
+      val req = path.addQueryParameter("collection", collection).addQueryParameter("createCollection", createIfNotExists.toString).setBody(documentString).POST
       Http(req OK as.String) map { x =>
          val result = ScalaJack.read[ResultMessage](x)
          result.error match {
@@ -81,38 +78,4 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
          }
       }
    }
-
 }
-
-case class ResultList(
-   result: List[String],
-   error: Boolean,
-   code: Int
-)
-
-case class ResultMessage(
-   error: Boolean,
-   errorMessage: Option[String],
-   result: Option[Boolean],
-   code: Option[Int],
-   errorNum : Option[Int],
-   _id: Option[String],
-   _rev: Option[String],
-   _key: Option[String]
-)
-
-case class Database(
-   name: String,
-   users: Option[List[User]]
-)
-
-case class Documents(
-   documents: List[String]
-)
-
-case class User(
-   username: String,
-   passwd: String,
-   active: Boolean = true,
-   extra: Option[String] = None
-)
