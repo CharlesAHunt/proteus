@@ -7,8 +7,13 @@ The name Proteus is a nod to the versatile and many-formed nature of ArangoDB.
 
 ## Install
 
-libraryDependencies += "com.cornfluence" % "proteus_2.11" % "0.2.0-SNAPSHOT"
-
+sbt: libraryDependencies += "com.cornfluence" % "proteus_2.11" % "0.2.2"
+maven:      <dependency>
+              <groupId>com.cornfluence</groupId>
+              <artifactId>proteus_2.11</artifactId>
+              <version>0.2.2</version>
+              <classifier>sources</classifier>
+            </dependency>
 
 ## Examples
 
