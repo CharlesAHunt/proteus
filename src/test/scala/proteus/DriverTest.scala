@@ -74,6 +74,30 @@ class DriverTest extends FunSpec {
             }
          }
       }
+      describe("Replace one document by handle") {
+         it("should replace one document from the test collection") {
+
+            val driver = new Driver(databaseName = testDB)
+            val result = driver.replaceDocument(testDB, "testCollection", testDocID,"""{ "Hello": "Arango" }""")
+
+            result.onComplete {
+               case Success(res) => res should include (testDocID)
+               case Failure(t) => fail(t)
+            }
+         }
+      }
+      describe("Ensure replaced document has changed") {
+         it("replaced document should have changed in the test collection") {
+
+            val driver = new Driver(databaseName = testDB)
+            val result = driver.getDocument(testDB, "testCollection", testDocID)
+
+            result.onComplete {
+               case Success(res) => res should include ("""{"Hello":"Arango","_id":"testCollection/"""+testDocID)
+               case Failure(t) => fail(t)
+            }
+         }
+      }
       describe("Remove a document by handle") {
          it("should remove one document from the test collection") {
 

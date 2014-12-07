@@ -52,6 +52,18 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
       }
    }
 
+   def replaceDocument(db : String, collectionName: String, documentID : String, documentString : String): Future[String] = {
+      val path = arangoHost / "_db" / db / "_api" / "document" / collectionName / documentID
+      val req = path.setBody(documentString).PUT
+      Http(req OK as.String) map { x =>
+         val result = ScalaJack.read[ResultMessage](x)
+         result.error match {
+            case true => throw new Exception(result.errorMessage.get)
+            case false => result._key.get
+         }
+      }
+   }
+
    def getAllDocuments(db : String, collectionName : String): Future[List[String]] = {
       val path = arangoHost / "_db" / db /"_api" / "document"
       val req = path.addQueryParameter("collection", collectionName).GET
