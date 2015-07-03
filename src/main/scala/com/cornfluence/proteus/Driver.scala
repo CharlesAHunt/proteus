@@ -16,56 +16,56 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
       Http(req OK as.String) map {x => ScalaJack.read[ResultList](x).result}
    }
 
-   def createDatabase(dbName:String, users : Option[List[User]]): Future[String] = {
+   def createDatabase(dbName:String, users : Option[List[User]]): Future[Either[Error,String]] = {
       val path = arangoHost / "_api" / "database"
       val req = path.setBody(ScalaJack.render(Database(dbName, users))).POST
       Http(req OK as.String) map { x =>
          val result = ScalaJack.read[ResultMessage](x)
          result.error match {
-            case true => throw new Exception(result.errorMessage.get)
-            case false => "ok"
+            case true => Left(Error(result.errorMessage.get))
+            case false => Right("success")
          }
       }
    }
 
-   def deleteDatabase(dbName:String): Future[String] = {
+   def deleteDatabase(dbName:String): Future[Either[Error,String]] = {
       val path = arangoHost / "_api" / "database" / dbName
       val req = path.DELETE
       Http(req OK as.String) map { x =>
          val result = ScalaJack.read[ResultMessage](x)
          result.error match {
-            case true => throw new Exception(result.errorMessage.get)
-            case false => "ok"
+            case true => Left(Error(result.errorMessage.get))
+            case false => Right("success")
          }
       }
    }
 
-   def createDocument(db : String, collection: String, documentString : String, createIfNotExists : Boolean = true): Future[String] = {
+   def createDocument(db : String, collection: String, documentString : String, createIfNotExists : Boolean = true): Future[Either[Error,String]] = {
       val path = arangoHost / "_db" / db / "_api" / "document"
       val req = path.addQueryParameter("collection", collection).addQueryParameter("createCollection", createIfNotExists.toString).setBody(documentString).POST
       Http(req OK as.String) map { x =>
          val result = ScalaJack.read[ResultMessage](x)
          result.error match {
-            case true => throw new Exception(result.errorMessage.get)
-            case false => result._key.get
+            case true => Left(Error(result.errorMessage.get))
+            case false => Right(result._key.get)
          }
       }
    }
 
-   def replaceDocument(db : String, collectionName: String, documentID : String, documentString : String): Future[String] = {
+   def replaceDocument(db : String, collectionName: String, documentID : String, documentString : String): Future[Either[Error,String]] = {
       val path = arangoHost / "_db" / db / "_api" / "document" / collectionName / documentID
       val req = path.setBody(documentString).PUT
       Http(req OK as.String) map { x =>
          val result = ScalaJack.read[ResultMessage](x)
          result.error match {
-            case true => throw new Exception(result.errorMessage.get)
-            case false => result._key.get
+            case true => Left(Error(result.errorMessage.get))
+            case false => Right(result._key.get)
          }
       }
    }
 
    def getAllDocuments(db : String, collectionName : String): Future[List[String]] = {
-      val path = arangoHost / "_db" / db /"_api" / "document"
+      val path = arangoHost / "_db" / db / "_api" / "document"
       val req = path.addQueryParameter("collection", collectionName).GET
       Http(req OK as.String) map {x =>
          val result = ScalaJack.read[Documents](x)
@@ -74,19 +74,19 @@ class Driver(hostMachine: String = "localhost", port: Int = 8529, https: Boolean
    }
 
    def getDocument(db : String, collectionName : String, documentID : String): Future[String] = {
-      val path = arangoHost / "_db" / db /"_api" / "document" / collectionName / documentID
+      val path = arangoHost / "_db" / db / "_api" / "document" / collectionName / documentID
       val req = path.GET
       Http(req OK as.String)
    }
 
-   def removeDocument(db : String, collectionName : String, documentID : String): Future[String] = {
-      val path = arangoHost / "_db" / db /"_api" / "document" / collectionName / documentID
+   def removeDocument(db : String, collectionName : String, documentID : String): Future[Either[Error,String]] = {
+      val path = arangoHost / "_db" / db / "_api" / "document" / collectionName / documentID
       val req = path.DELETE
       Http(req OK as.String).map { x =>
          val result = ScalaJack.read[ResultMessage](x)
          result.error match {
-            case true => throw new Exception(result.errorMessage.get)
-            case false => "ok"
+            case true => Left(Error(result.errorMessage.get))
+            case false => Right("success")
          }
       }
    }

@@ -29,7 +29,11 @@ case class Documents(
 
 case class User(
                   username: String,
-                  passwd: String,
+                  password: String,
                   active: Boolean = true,
                   extra: Option[String] = None
                   )
+
+case class Error(
+                message : String
+                   )

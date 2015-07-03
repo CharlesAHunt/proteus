@@ -21,7 +21,7 @@ class DriverTest extends FunSpec {
             val driver = new Driver(databaseName = testDB)
             val result = driver.createDatabase(testDB, Some(List(User("charles", "password"))))
             result.onComplete {
-               case Success(res) => res should include("ok")
+               case Success(res) => res.right.get shouldEqual "success"
                case Failure(t) => fail(t)
             }
          }
@@ -42,10 +42,10 @@ class DriverTest extends FunSpec {
             val result = driver.createDocument(testDB,"testCollection","""{ "Hello": "World" }""")
 
             val res = Await.result(result, 5 second)
-            testDocID = res
+            testDocID = res.right.get
 
             result.onComplete {
-               case Success(res) => res.toLong should be > 0L ;
+               case Success(res) => res.right.get.toLong should be > 0L ;
                case Failure(t) => fail(t)
             }
          }
@@ -81,7 +81,7 @@ class DriverTest extends FunSpec {
             val result = driver.replaceDocument(testDB, "testCollection", testDocID,"""{ "Hello": "Arango" }""")
 
             result.onComplete {
-               case Success(res) => res should include (testDocID)
+               case Success(res) => res.right.get should include (testDocID)
                case Failure(t) => fail(t)
             }
          }
@@ -105,7 +105,7 @@ class DriverTest extends FunSpec {
             val result = driver.removeDocument(testDB, "testCollection",testDocID)
 
             result.onComplete {
-               case Success(res) => res should include ("ok")
+               case Success(res) => res.right.get should include ("success")
                case Failure(t) => fail(t)
             }
          }
@@ -115,7 +115,7 @@ class DriverTest extends FunSpec {
             val driver = new Driver(databaseName = testDB)
             val result = driver.deleteDatabase(testDB)
             result.onComplete {
-               case Success(res) => res should include("ok")
+               case Success(res) => res.right.get should include("success")
                case Failure(t) => fail()
             }
          }

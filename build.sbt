@@ -6,7 +6,7 @@ description := "Scala driver for ArangoDB"
 
 version := "0.2.3"
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.11.4"
 
 publishMavenStyle := true
 
@@ -44,11 +44,13 @@ resolvers ++= Seq(
   "OSS"  at "http://oss.sonatype.org/content/repositories/releases"
 )
 
+shellPrompt := { state => scala.Console.YELLOW + "[" + scala.Console.CYAN + Project.extract(state).currentProject.id + scala.Console.YELLOW + "]" + scala.Console.RED + " $ " + scala.Console.RESET }
+
 libraryDependencies ++= {
   Seq(
     "net.databinder.dispatch" %% "dispatch-core" % "0.11.1",
     "org.scalatest" %% "scalatest" % "2.2.1" % "test",
-    "co.blocke"	  %% "scalajack" % "2.0.2"
+     "co.blocke" %% "scalajack" % "4.0"
   )
 }
 
