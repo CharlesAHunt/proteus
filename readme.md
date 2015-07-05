@@ -44,29 +44,29 @@ Create a database:
             
 Delete a database:
             
-            driver.deleteDatabase("test")
+            client.deleteDatabase("test")
             
 ###Document Ops
                         
 Create a document (returning the document id as a string):
             
-            driver.createDocument("test","testCollection","""{ "Hello": "World" }""")
+            client.createDocument("test","testCollection","""{ "Hello": "World" }""")
             
 Fetch all documents:
 
-            driver.getAllDocuments("test", "testCollection")
+            client.getAllDocuments("test", "testCollection")
             
 Fetch a single document:
 
-            driver.getDocument("test", "testCollection", "documentID")
+            client.getDocument("test", "testCollection", "documentID")
 
 Update/Replace a document:
             
-            driver.replaceDocument("test", "testCollection", "documentID","""{ "Hello": "World" }""")
+            client.replaceDocument("test", "testCollection", "documentID","""{ "Hello": "World" }""")
             
 Remove a document:
 
-            driver.deleteDocument("test", "testCollection", "documentID")
+            client.deleteDocument("test", "testCollection", "documentID")
             
 ###Graph Ops
 
@@ -76,20 +76,20 @@ Use an edge client (You can reuse the same database for edges)
             
 Create an edge (returning the edge id as a string):
             
-            driver.createEdge("test","testCollection","""{ "Hello": "World" }""","fromCollection","toCollection","fromVertice","toVertice")
+            client.createEdge("test","testCollection","""{ "Hello": "World" }""","fromCollection","toCollection","fromVertice","toVertice")
 
 Fetch all edges:
 
-            driver.getAllEdges("test", "testCollection", "verticeToStartFrom", "directionToTraverse")
+            client.getAllEdges("test", "testCollection", "verticeToStartFrom", "directionToTraverse")
             
 Fetch a single edge:
 
-            driver.getEdge("test", "testCollection", "edgeID")
+            client.getEdge("test", "testCollection", "edgeID")
             
 Update/Replace an edge:
 
-            driver.replaceEdge("test", "testCollection", "documentID","""{ "Hello": "World" }""")
+            client.replaceEdge("test", "testCollection", "documentID","""{ "Hello": "World" }""")
             
 Remove an edge:
 
-            driver.deleteEdge("test", "testCollection", "edgeID")
+            client.deleteEdge("test", "testCollection", "edgeID")
