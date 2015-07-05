@@ -26,6 +26,8 @@ publishTo := {
       Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
 
+credentials += Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", "charlesahunt", "philosophe")
+
 pomExtra := (
    <url>http://www.cornfluence.com</url>
       <scm>
@@ -53,8 +55,8 @@ shellPrompt := { state => scala.Console.YELLOW + "[" + scala.Console.CYAN + Proj
 libraryDependencies ++= {
   Seq(
     "net.databinder.dispatch" %% "dispatch-core" % "0.11.1",
-    "org.scalatest" %% "scalatest" % "2.2.1" % "test",
-     "co.blocke" %% "scalajack" % "4.0"
+    "org.scalatest" %% "scalatest" % "2.2.4" % "test",
+    "co.blocke" %% "scalajack" % "4.0"
   )
 }
 

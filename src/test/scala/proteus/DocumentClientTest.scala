@@ -13,7 +13,7 @@ class DocumentClientTest extends FunSpec {
    val testDB = "testDocumentClient"
    val testCollection = "testDocumentClientCollection"
    var testDocID = ""
-   val driver = new DocumentClient(databaseName = testDB)
+   val driver = DocumentClient(name = testDB)
 
    describe("==============\n| Document Client Test |\n==============") {
       describe("Create Database") {
@@ -57,6 +57,7 @@ class DocumentClientTest extends FunSpec {
       }
       describe("Retrieve one document by handle") {
          it("should retrieve one document from the test collection") {
+            Thread.sleep(500)
             val result = driver.getDocument(testDB, testCollection, testDocID)
 
             result.onComplete {

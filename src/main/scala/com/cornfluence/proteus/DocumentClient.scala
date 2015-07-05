@@ -3,6 +3,11 @@ package com.cornfluence.proteus
 import co.blocke.scalajack.ScalaJack
 import dispatch._, Defaults._
 
+object DocumentClient {
+   def apply(name : String) = new DocumentClient(databaseName = name)
+   def apply(hostMachine: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String) = new DocumentClient(hostMachine,port, https, databaseName)
+}
+
 class DocumentClient(hostMachine: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String) extends ArangoClient(hostMachine, port, https, databaseName) {
 
    /*

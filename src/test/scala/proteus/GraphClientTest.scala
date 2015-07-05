@@ -74,30 +74,30 @@ class GraphClientTest extends FunSpec {
             }
          }
       }
-//      describe("Replace one edge by handle") {
-//         it("should replace one edge from the test collection") {
-//
-//            val driver = new GraphClient(databaseName = testDB)
-//            val result = driver.replaceEdge(testDB, testEdgeCollection, testDocID, """{ "Hello": "Arango" }""")
-//
-//            result.onComplete {
-//               case Success(res) => res.right.get should include(testDocID)
-//               case Failure(t) => fail(t)
-//            }
-//         }
-//      }
-//      describe("Ensure replaced edge has changed") {
-//         it("replaced edge should have changed in the test collection") {
-//
-//            val driver = new GraphClient(databaseName = testDB)
-//            val result = driver.getEdge(testDB, testEdgeCollection, testDocID)
-//
-//            result.onComplete {
-//               case Success(res) => res should include( s"""{"Hello":"Arango","_id":"$testEdgeCollection/""" + testDocID)
-//               case Failure(t) => fail(t)
-//            }
-//         }
-//      }
+      describe("Replace one edge by handle") {
+         it("should replace one edge from the test collection") {
+            Thread.sleep(500)
+            val driver = new GraphClient(databaseName = testDB)
+            val result = driver.replaceEdge(testDB, testEdgeCollection, testDocID, """{ "Hello": "Arango" }""")
+
+            result.onComplete {
+               case Success(res) => res.right.get should include(testDocID)
+               case Failure(t) => fail(t)
+            }
+         }
+      }
+      describe("Ensure replaced edge has changed") {
+         it("replaced edge should have changed in the test collection") {
+
+            val driver = new GraphClient(databaseName = testDB)
+            val result = driver.getEdge(testDB, testEdgeCollection, testDocID)
+
+            result.onComplete {
+               case Success(res) => res should include( s"""{"Hello":"Arango","_id":"$testEdgeCollection/""" + testDocID)
+               case Failure(t) => fail(t)
+            }
+         }
+      }
       describe("Remove a edge by handle") {
          it("should remove one edge from the test collection") {
             val result = driver.deleteEdge(testDB, testEdgeCollection, testDocID)

@@ -14,7 +14,7 @@ You may need to add the Sonatype nexus to your resolvers:
 
 sbt:
 ```
-libraryDependencies += "com.cornfluence" % "proteus_2.11" % "0.2.2"
+libraryDependencies += "com.cornfluence" % "proteus_2.11" % "0.4.0"
 ```
 
 maven:   
@@ -22,18 +22,30 @@ maven:
 <dependency>
   <groupId>com.cornfluence</groupId>
   <artifactId>proteus_2.11</artifactId>
-  <version>0.2.2</version>
+  <version>0.4.0</version>
   <classifier>sources</classifier>
 </dependency>
 ```
 
 ## Examples
 
+###Ops
+
+All non-GET methods return an '''Future[Either[Error,String]]'''  , whereas the String is the success message, and the Error contains all error information.
+GET methods return a String representing the individual data object or a List of Strings representing a list of the individual data objects.
+###Database Ops
+
 Create a database:
 
-            val driver = new Driver(databaseName = "test")
-            val result = driver.getDatabaseList
+            val client = DocumentClient(name = "test")
+            val result = client.getDatabaseList
             
+Delete a database:
+            
+            driver.deleteDatabase("test")
+            
+###Document Ops
+                        
 Create a document (returning the document id as a string):
             
             driver.createDocument("test","testCollection","""{ "Hello": "World" }""")
@@ -45,11 +57,37 @@ Fetch all documents:
 Fetch a single document:
 
             driver.getDocument("test", "testCollection", "documentID")
+
+Update/Replace a document:
+            
+            driver.replaceDocument("test", "testCollection", "documentID","""{ "Hello": "World" }""")
             
 Remove a document:
 
-            driver.removeDocument("test", "testCollection", "documentID")
+            driver.deleteDocument("test", "testCollection", "documentID")
             
-Delete a database:
+###Graph Ops
 
-            driver.deleteDatabase("test")
+Use an edge client (You can reuse the same database for edges)
+
+            val client = EdgeClient(name = "test")
+            
+Create an edge (returning the edge id as a string):
+            
+            driver.createEdge("test","testCollection","""{ "Hello": "World" }""","fromCollection","toCollection","fromVertice","toVertice")
+
+Fetch all edges:
+
+            driver.getAllEdges("test", "testCollection", "verticeToStartFrom", "directionToTraverse")
+            
+Fetch a single edge:
+
+            driver.getEdge("test", "testCollection", "edgeID")
+            
+Update/Replace an edge:
+
+            driver.replaceEdge("test", "testCollection", "documentID","""{ "Hello": "World" }""")
+            
+Remove an edge:
+
+            driver.deleteEdge("test", "testCollection", "edgeID")

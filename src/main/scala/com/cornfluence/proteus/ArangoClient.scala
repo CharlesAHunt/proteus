@@ -3,6 +3,11 @@ package com.cornfluence.proteus
 import co.blocke.scalajack.ScalaJack
 import dispatch._, Defaults._
 
+object ArangoClient {
+   def apply(name : String) = new ArangoClient(databaseName = name)
+   def apply(hostMachine: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String) = new ArangoClient(hostMachine,port, https, databaseName)
+}
+
 /*
 *  ArangoDB Driver: Defaults to localhost:8529 unless otherwise specified
 */

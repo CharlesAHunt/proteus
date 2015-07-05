@@ -3,6 +3,10 @@ package com.cornfluence.proteus
 import co.blocke.scalajack.ScalaJack
 import dispatch._, Defaults._
 
+object GraphClient {
+   def apply(name : String) = new GraphClient(databaseName = name)
+   def apply(hostMachine: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String) = new GraphClient(hostMachine,port, https, databaseName)
+}
 
 class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String) extends ArangoClient(hostMachine, port, https, databaseName) {
 
