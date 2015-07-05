@@ -1,6 +1,15 @@
 package com.cornfluence.proteus
 
 
+case class Edge(
+   _id : String,
+   _rev : String,
+   _key : String,
+   _from : String,
+   _to : String,
+   $label : String
+)
+
 case class ResultList(
                         result: List[String],
                         error: Boolean,

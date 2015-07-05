@@ -36,25 +36,20 @@ Create a database:
             
 Create a document (returning the document id as a string):
             
-            val driver = new Driver(databaseName = "test")
-            val result : String = driver.createDocument("test","testCollection","""{ "Hello": "World" }""")
+            driver.createDocument("test","testCollection","""{ "Hello": "World" }""")
             
 Fetch all documents:
 
-            val driver = new Driver(databaseName = "test")
-            val result = driver.getAllDocuments("test", "testCollection")
+            driver.getAllDocuments("test", "testCollection")
             
 Fetch a single document:
 
-            val driver = new Driver(databaseName = "test")
-            val result = driver.getDocument("test", "testCollection", "documentID")
+            driver.getDocument("test", "testCollection", "documentID")
             
 Remove a document:
 
-            val driver = new Driver(databaseName = "test")
-            val result = driver.removeDocument("test", "testCollection", "documentID")
+            driver.removeDocument("test", "testCollection", "documentID")
             
 Delete a database:
 
-            val driver = new Driver(databaseName = "test")
-            val result = driver.deleteDatabase("test")
+            driver.deleteDatabase("test")

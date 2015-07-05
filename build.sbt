@@ -1,10 +1,12 @@
+import scala.io.Source
+
 name := "proteus"
 
 organization := "com.cornfluence"
 
 description := "Scala driver for ArangoDB"
 
-version := "0.2.3"
+version := Source.fromFile("./.version").getLines().toList.head
 
 scalaVersion := "2.11.4"
 
@@ -13,6 +15,8 @@ publishMavenStyle := true
 publishArtifact in Test := false
 
 pomIncludeRepository := { _ => false }
+
+scalacOptions ++= Seq("-feature")
 
 publishTo := {
    val nexus = "https://oss.sonatype.org/"
