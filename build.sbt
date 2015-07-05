@@ -26,8 +26,6 @@ publishTo := {
       Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
 
-credentials += Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", "charlesahunt", "philosophe")
-
 pomExtra := (
    <url>http://www.cornfluence.com</url>
       <scm>
