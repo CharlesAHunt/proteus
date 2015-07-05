@@ -31,8 +31,10 @@ maven:
 
 ###Ops
 
-All non-GET methods return an '''Future[Either[Error,String]]'''  , whereas the String is the success message, and the Error contains all error information.
-GET methods return a String representing the individual data object or a List of Strings representing a list of the individual data objects.
+All non-GET methods return a 'Future[Either[Error,String]]', whereas the String is the success message, and the Error contains all error information.
+
+GET methods return a 'Future[String]' representing a potential individual data object or a 'Future[List[String]]'.
+
 ###Database Ops
 
 Create a database:
