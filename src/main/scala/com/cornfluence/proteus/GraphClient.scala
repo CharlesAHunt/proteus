@@ -1,7 +1,6 @@
 package com.cornfluence.proteus
 
-import co.blocke.scalajack.ScalaJack
-import dispatch._, Defaults._
+import scalaj.http._
 
 object GraphClient {
    def apply(name : String) = new GraphClient(databaseName = name)

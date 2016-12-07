@@ -1,6 +1,5 @@
 package com.cornfluence.proteus
 
-
 case class Edge(
    _id : String,
    _rev : String,

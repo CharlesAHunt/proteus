@@ -8,7 +8,7 @@ description := "Scala driver for ArangoDB"
 
 version := Source.fromFile("./.version").getLines().toList.head
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.12.0"
 
 publishMavenStyle := true
 
@@ -52,9 +52,16 @@ shellPrompt := { state => scala.Console.YELLOW + "[" + scala.Console.CYAN + Proj
 
 libraryDependencies ++= {
   Seq(
-    "net.databinder.dispatch" %% "dispatch-core" % "0.11.1",
-    "org.scalatest" %% "scalatest" % "2.2.4" % "test",
-    "co.blocke" %% "scalajack" % "4.0"
+    "org.scalaj" %% "scalaj-http" % "2.3.0",
+    "org.scalatest" %% "scalatest" % "3.0.1" % "test"
   )
 }
+
+val circeVersion = "0.6.1"
+
+libraryDependencies ++= Seq(
+  "io.circe" %% "circe-core",
+  "io.circe" %% "circe-generic",
+  "io.circe" %% "circe-parser"
+).map(_ % circeVersion)
 

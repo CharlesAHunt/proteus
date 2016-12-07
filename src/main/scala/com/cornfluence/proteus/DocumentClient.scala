@@ -1,7 +1,6 @@
 package com.cornfluence.proteus
 
-import co.blocke.scalajack.ScalaJack
-import dispatch._, Defaults._
+import scalaj.http._
 
 object DocumentClient {
    def apply(name : String) = new DocumentClient(databaseName = name)
