@@ -8,7 +8,7 @@ description := "Scala driver for ArangoDB"
 
 version := Source.fromFile("./.version").getLines().toList.head
 
-scalaVersion := "2.12.0"
+scalaVersion := "2.12.1"
 
 publishMavenStyle := true
 
@@ -52,6 +52,8 @@ shellPrompt := { state => scala.Console.YELLOW + "[" + scala.Console.CYAN + Proj
 
 libraryDependencies ++= {
   Seq(
+    "ch.qos.logback" % "logback-classic" % "1.1.7",
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
     "org.scalaj" %% "scalaj-http" % "2.3.0",
     "org.scalatest" %% "scalatest" % "3.0.1" % "test"
   )
