@@ -29,11 +29,23 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
   protected val arangoHost = if (https) s"https://$host:$port" else s"http://$host:$port"
   private val api = "_api"
   private val database = "database"
+  type DatabaseName = String
+
+  def getCurrentDatabase: Future[Either[Throwable, CurrentDatabase]] = Future {
+    val response: HttpResponse[String] = Http(s"$arangoHost/$api/$database/current").asString
+    decode[CurrentDatabase](response.body) match {
+      case Right(ok) => Right(ok)
+      case Left(error) =>
+        logger.error(error.getMessage)
+        Left(error)
+    }
+  }
+
 
   /*
    Retrieves the list of all existing databases
-    */
-  def getDatabaseList: Future[Either[Throwable, List[String]]] = Future {
+   */
+  def getDatabaseList: Future[Either[Throwable, List[DatabaseName]]] = Future {
     val response: HttpResponse[String] = Http(s"$arangoHost/$api/$database").asString
     decode[ResultList](response.body) match {
       case Right(ok) => Right(ok.result)
@@ -46,13 +58,14 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
   /*
   Creates a new database
    */
-  def createDatabase(dbName: String, users: Option[List[User]]): Future[Either[Throwable, String]] = Future {
+  def createDatabase(dbName: String, users: Option[List[User]]): Future[Either[Throwable, Unit]] = Future {
     val postData = Database(dbName, users)
     val response: HttpResponse[String] = Http(s"$arangoHost/$api/$database").postData(postData.asJson.noSpaces).asString
+
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(ok.error) Left(new Exception(ok.errorMessage.get))
-        else Right("success")
+        else Right(())
       case Left(error) => Left(error)
     }
   }
@@ -60,12 +73,12 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
   /*
   Deletes the database along with all data stored in it
    */
-  def deleteDatabase(dbName: String): Future[Either[Throwable, String]] = Future {
+  def deleteDatabase(dbName: String): Future[Either[Throwable, Unit]] = Future {
     val response: HttpResponse[String] = Http(s"$arangoHost/$api/$database/$dbName").method("DELETE").asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(ok.error) Left(new Exception(ok.errorMessage.get))
-        else Right("success")
+        else Right(())
       case Left(error) => Left(error)
     }
   }

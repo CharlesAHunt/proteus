@@ -15,6 +15,19 @@ case class ResultList(
   code: Int
 )
 
+case class CurrentDatabase(
+  result : Result,
+  error : Boolean,
+  code : Int
+)
+
+case class Result(
+  name : String,
+  id : String,
+  path : String,
+  isSystem : Boolean
+)
+
 case class ResultMessage(
   error: Boolean,
   errorMessage: Option[String],
