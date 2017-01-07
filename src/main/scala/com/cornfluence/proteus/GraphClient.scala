@@ -33,7 +33,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     toCollection: String,
     from: String,
     to: String,
-    createIfNotExists: Boolean = true): Future[Either[Error, String]] = Future {
+    createIfNotExists: Boolean = true): Future[Either[Throwable, String]] = Future {
 
     val response = Http(s"$arangoHost/db/$db/_api/edge").postData(edgeString)
       .param("collection", collectionName)
@@ -54,7 +54,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
   /*
   Replaces a edge with edgeString
    */
-  def replaceEdge(db: String, collectionName: String, edgeId: String, documentString: String): Future[Either[Error, String]] = Future {
+  def replaceEdge(db: String, collectionName: String, edgeId: String, documentString: String): Future[Either[Throwable, String]] = Future {
     val response = Http(s"$arangoHost/db/$db/_api/edge/collectionName/$edgeId").put(documentString).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
@@ -71,20 +71,20 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
    */
   def getAllEdges(db: String, collectionName: String, vertexStart: String, direction: Option[String] = None): Future[String] = Future {
     val request = Http(s"$arangoHost/db/$db/_api/edges/$collectionName").param("vertex", vertexStart)
-    if (direction.nonEmpty) request.param("direction", direction.get).asString else request.asString
+    if (direction.nonEmpty) request.param("direction", direction.get).asString.body else request.asString.body
   }
 
   /*
   Retrieve an edge using its unique URI:
    */
   def getEdge(db: String, collectionName: String, edgeId: String): Future[String] = Future {
-    Http(s"$arangoHost/db/$db/_api/edge/$collectionName/$edgeId").asString
+    Http(s"$arangoHost/db/$db/_api/edge/$collectionName/$edgeId").asString.body
   }
 
   /*
   Deletes an edge using its unique URI:
    */
-  def deleteEdge(db: String, collectionName: String, edgeId: String): Future[Either[Error, String]] = Future {
+  def deleteEdge(db: String, collectionName: String, edgeId: String): Future[Either[Throwable, String]] = Future {
     val response = Http(s"$arangoHost/db/$db/_api/edge/$collectionName/$edgeId").method("DELETE").asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
