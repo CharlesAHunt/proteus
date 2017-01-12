@@ -5,9 +5,8 @@ import org.scalatest.FunSpec
 import org.scalatest.Matchers._
 import scala.language.postfixOps
 
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext}
 import ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
 import scala.concurrent.duration._
 
 class DocumentClientTest extends FunSpec {
@@ -22,7 +21,7 @@ class DocumentClientTest extends FunSpec {
       it("should create new Database") {
         val result = driver.createDatabase(testDB, Some(List(User("charles", "password"))))
         Await.result(result, 5.seconds) match {
-          case Left(err) => fail(err)
+          case Left(err) => fail(err.getMessage)
           case Right(ok) => ok
         }
       }
@@ -31,7 +30,7 @@ class DocumentClientTest extends FunSpec {
       it("should properly retrieve all databases") {
         val result = driver.getDatabaseList
         Await.result(result, 5.seconds) match {
-          case Left(err) => fail(err)
+          case Left(err) => fail(err.getMessage)
           case Right(ok) => assert(ok.nonEmpty)
         }
       }

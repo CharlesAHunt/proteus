@@ -1,5 +1,17 @@
 package com.cornfluence.proteus
 
+case class Edges(
+  edges: List[Edge],
+  error : Boolean,
+  code : Int,
+  stats : Stats
+)
+
+case class Stats(
+  scannedIndex : Int,
+  filtered : Int
+)
+
 case class Edge(
   _id: String,
   _rev: String,
