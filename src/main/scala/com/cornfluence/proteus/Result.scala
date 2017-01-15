@@ -42,13 +42,13 @@ case class Result(
 
 case class ResultMessage(
   error: Boolean,
-  errorMessage: Option[String],
-  result: Option[Boolean],
-  code: Option[Int],
-  errorNum: Option[Int],
-  _id: Option[String],
-  _rev: Option[String],
-  _key: Option[String]
+  errorMessage: Option[String] = None,
+  result: Option[Boolean] = None,
+  code: Option[Int] = None,
+  errorNum: Option[Int] = None,
+  _id: Option[String] = None,
+  _rev: Option[String] = None,
+  _key: Option[String] = None
 )
 
 case class Database(

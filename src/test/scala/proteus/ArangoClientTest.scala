@@ -39,6 +39,17 @@ class ArangoClientTest extends FunSpec {
       }
     }
 
+    describe("Delete Database") {
+      it("should delete the Database") {
+        val result = driver.deleteDatabase(testDB)
+        val res = Await.result(result, 5 second)
+        res match {
+          case Left(err) => fail(err.getMessage)
+          case Right(ok) => ok
+        }
+      }
+    }
+
   }
 }
 

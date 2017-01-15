@@ -55,7 +55,8 @@ libraryDependencies ++= {
     "ch.qos.logback" % "logback-classic" % "1.1.7",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
     "org.scalaj" %% "scalaj-http" % "2.3.0",
-    "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+    "org.scalatest" %% "scalatest" % "3.0.1" % "test",
+    "com.typesafe" % "config" % "1.3.1"
   )
 }
 

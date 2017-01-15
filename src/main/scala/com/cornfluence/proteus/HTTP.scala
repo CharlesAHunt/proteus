@@ -1,20 +1,30 @@
 package com.cornfluence.proteus
 
-import scalaj.http.HttpRequest
+import com.typesafe.scalalogging.Logger
 
-object HTTP {
+import scalaj.http.{HttpRequest, HttpResponse}
+import io.circe._
+import io.circe.generic.auto._
+import io.circe.parser.{decode, _}
+import io.circe.syntax._
 
-//  def handleResponse[T](response: HttpResponse[T]) = {
-//    response.code match {
-//
-//    }
-//  }
+import scala.concurrent.Future
 
-  def authToken(request: HttpRequest, jwt: String): HttpRequest =
-    request.header("Authorization",s"bearer $jwt")
+trait HTTP {
 
+  private val logger = Logger("HTTP")
 
-  case class Auth(username: String, password: String)
-  case class JWT(jwt: String, must_change_password: Boolean)
+  def handleResponse[T](response: HttpResponse[String]): Either[ResultMessage, HttpResponse[String]] = {
+    response.code match {
+      case c if c.toString.startsWith("2") => Right(response)
+      case _ =>
+        decode[ResultMessage](response.body) match {
+          case Right(ok) => Left(ok)
+          case Left(error) =>
+            logger.error(error.getMessage)
+            Left(ResultMessage(error = true, Option(error.getMessage)))
+        }
+    }
+  }
 
 }
