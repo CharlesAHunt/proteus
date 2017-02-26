@@ -1,10 +1,5 @@
 package com.cornfluence.proteus.models
 
-case class Stats(
-  scannedIndex : Int,
-  filtered : Int
-)
-
 case class Edge(
   _id: String,
   _rev: String,
@@ -21,6 +16,10 @@ case class Database(
 
 case class Documents(
   documents: List[String]
+)
+
+case class ReadAllDocumentKeys(
+  collection: String
 )
 
 case class User(

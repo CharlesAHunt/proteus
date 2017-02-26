@@ -94,7 +94,7 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
     val response: HttpResponse[String] = auth(Http(s"$arangoHost/$api/$database").postData(postData.asJson.noSpaces)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
         else Right(())
       case Left(error) => Left(error)
     }
@@ -107,7 +107,7 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
     val response: HttpResponse[String] = auth(Http(s"$arangoHost/$api/$database/$dbName").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
         else Right(())
       case Left(error) => Left(error)
     }
@@ -116,13 +116,26 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
   /*
   Creates a new collection
   */
-  def createCollection(collectionName: String): Future[Either[Throwable, Unit]] = Future {
+  def createCollection(collectionName: String): Future[Either[Throwable, CollectionResponse]] = Future {
     val postData = Collection(collectionName)
     val response: HttpResponse[String] = auth(Http(s"$arangoHost/$api/collection").postData(postData.asJson.noSpaces)).asString
-    decode[ResultMessage](response.body) match {
+    decode[CollectionResponse](response.body) match {
       case Right(ok) =>
         if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
-        else Right(())
+        else Right(ok)
+      case Left(error) => Left(error)
+    }
+  }
+
+  /*
+  Drops a collection
+  */
+  def dropCollection(collectionName: String): Future[Either[Throwable, CollectionResponse]] = Future {
+    val response: HttpResponse[String] = auth(Http(s"$arangoHost/$api/collection/$collectionName").method(DELETE)).asString
+    decode[CollectionResponse](response.body) match {
+      case Right(ok) =>
+        if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
+        else Right(ok)
       case Left(error) => Left(error)
     }
   }

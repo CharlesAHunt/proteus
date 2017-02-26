@@ -42,7 +42,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
       .param("to", s"$toCollection/$to").postData(edgeString).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
         else Right(ok._key.get)
       case Left(error) =>
         logger.error(error.getMessage)
@@ -59,7 +59,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     val response = Http(s"$arangoHost/$api/edge/collectionName/$edgeId").put(documentString).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
         else Right(ok._key.get)
       case Left(error) =>
         logger.error(error.getMessage)
@@ -106,7 +106,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     val response = Http(s"$arangoHost/$api/edge/$collectionName/$edgeId").method(DELETE).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
         else Right(())
       case Left(error) =>
         logger.error(error.getMessage)

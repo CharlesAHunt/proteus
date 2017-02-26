@@ -8,14 +8,15 @@ case class Result(
 )
 
 case class ResultMessage(
-  error: Boolean,
+  error: Option[Boolean],
   errorMessage: Option[String] = None,
   result: Option[Boolean] = None,
   code: Option[Int] = None,
   errorNum: Option[Int] = None,
   _id: Option[String] = None,
   _rev: Option[String] = None,
-  _key: Option[String] = None
+  _key: Option[String] = None,
+  _oldRev : Option[String] = None
 )
 
 case class Edges(
@@ -28,7 +29,23 @@ case class Edges(
 case class ResultList(
   result: List[String],
   error: Boolean,
-  code: Int
+  code: Int,
+  hasMore: Option[Boolean],
+  cached: Option[Boolean],
+  extra: Option[Extra]
+)
+
+case class Extra(
+  stats: Stats,
+   warnings:Option[List[String]]
+  )
+
+case class Stats(
+  writesExecuted:Long,
+  writesIgnored:Long,
+  scannedFull:Long,
+  scannedIndex:Long,
+  filtered:Long
 )
 
 case class CurrentDatabase(
@@ -41,14 +58,16 @@ case class Error(
   message: String
 )
 
-case class CreatedCollection(
+case class CollectionResponse(
   id : String,
-  name : String,
-  waitForSync : Boolean,
-  isVolatile : Boolean,
-  isSystem : Boolean,
-  status : Int,
-  `type` : Int,
   error : Boolean,
-  code : Int
+  code : Int,
+  name : Option[String],
+  waitForSync : Option[Boolean],
+  isVolatile : Option[Boolean],
+  isSystem : Option[Boolean],
+  status : Option[Int],
+  `type` : Option[Int],
+  errorNum: Option[Int],
+  errorMessage: Option[String]
 )

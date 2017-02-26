@@ -1,10 +1,11 @@
 package proteus
 
-import com.cornfluence.proteus.{DocumentClient, User}
+import com.cornfluence.proteus.models.User
+import com.cornfluence.proteus.DocumentClient
 import org.scalatest.FunSpec
 import org.scalatest.Matchers._
-import scala.language.postfixOps
 
+import scala.language.postfixOps
 import scala.concurrent.{Await, ExecutionContext}
 import ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -36,9 +37,22 @@ class DocumentClientTest extends FunSpec {
       }
     }
 
+    describe("Create Collection") {
+      it("should create a collection") {
+        val result = driver.createCollection(testCollection)
+
+        val res = Await.result(result, 5 second)
+
+        res match {
+          case Left(err) => fail(err)
+          case Right(ok) => res.right.get.name.get shouldEqual testCollection
+        }
+      }
+    }
+
     describe("Create Document") {
       it("should create document in test collection") {
-        val result = driver.createDocument(testDB, testCollection,"""{ "Hello": "World" }""")
+        val result = driver.createDocument(testDB, testCollection, """{ "Hello": "World" }""")
 
         val res = Await.result(result, 5 second)
         testDocID = res.right.get
@@ -49,6 +63,7 @@ class DocumentClientTest extends FunSpec {
         }
       }
     }
+
     describe("Retrieve All Documents") {
       it("should retrieve all documents in test collection") {
         val result = driver.getAllDocuments(testDB, testCollection)
@@ -66,7 +81,9 @@ class DocumentClientTest extends FunSpec {
         val res = Await.result(result, 5 second)
         res match {
           case Left(err) => fail(err)
-          case Right(ok) => ok should include(s"""{"Hello":"World","_id":"$testCollection/$testDocID""")
+          case Right(ok) =>
+            ok.toString should include(s"""{"_key":"$testDocID","_id":"$testCollection/$testDocID""")
+            ok.toString should include("""Hello":"World"}""")
         }
       }
     }
@@ -86,7 +103,9 @@ class DocumentClientTest extends FunSpec {
         val res = Await.result(result, 5 second)
         res match {
           case Left(err) => fail(err)
-          case Right(ok) => ok should include(s"""{"Hello":"Arango","_id":"$testCollection/""" + testDocID)
+          case Right(ok) =>
+            ok.toString should include(s"""{"_key":"$testDocID","_id":"$testCollection/$testDocID""")
+            ok.toString should include("""Hello":"Arango"}""")
         }
       }
     }
@@ -97,6 +116,18 @@ class DocumentClientTest extends FunSpec {
         res match {
           case Left(err) => fail(err)
           case Right(ok) => ok should include("success")
+        }
+      }
+    }
+    describe("Drop Collection") {
+      it("should drop a collection") {
+        val result = driver.dropCollection(testCollection)
+
+        val res = Await.result(result, 5 second)
+
+        res match {
+          case Left(err) => fail(err)
+          case Right(ok) => res.right.get.error shouldEqual false
         }
       }
     }

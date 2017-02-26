@@ -3,13 +3,11 @@ package com.cornfluence.proteus
 import com.cornfluence.proteus.models.ResultMessage
 import com.typesafe.scalalogging.Logger
 
-import scalaj.http.{HttpRequest, HttpResponse}
+import scalaj.http.HttpResponse
 import io.circe._
 import io.circe.generic.auto._
 import io.circe.parser.{decode, _}
 import io.circe.syntax._
-
-import scala.concurrent.Future
 
 trait HTTP {
 
@@ -23,7 +21,7 @@ trait HTTP {
           case Right(ok) => Left(ok)
           case Left(error) =>
             logger.error(error.getMessage)
-            Left(ResultMessage(error = true, Option(error.getMessage)))
+            Left(ResultMessage(error = Option(true), Option(error.getMessage)))
         }
     }
   }

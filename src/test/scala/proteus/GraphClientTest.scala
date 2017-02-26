@@ -1,11 +1,13 @@
 package proteus
 
-import com.cornfluence.proteus.{DocumentClient, GraphClient, User}
+import com.cornfluence.proteus.models.User
+import com.cornfluence.proteus.{DocumentClient, GraphClient}
 import org.scalatest.FunSpec
 import org.scalatest.Matchers._
+
 import scala.concurrent.{Await, ExecutionContext}
 import ExecutionContext.Implicits.global
-import scala.util.{Success, Failure}
+import scala.util.{Failure, Success}
 import scala.concurrent.duration._
 import scala.language.postfixOps
 

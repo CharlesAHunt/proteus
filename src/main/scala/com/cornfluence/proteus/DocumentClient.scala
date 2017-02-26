@@ -1,6 +1,6 @@
 package com.cornfluence.proteus
 
-import com.cornfluence.proteus.models.{Documents, ResultMessage}
+import com.cornfluence.proteus.models.{ReadAllDocumentKeys, ResultList, ResultMessage}
 import com.typesafe.scalalogging.Logger
 
 import scala.concurrent.Future
@@ -26,11 +26,10 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
     */
    def createDocument(db : String, collectionName: String, documentString : String, createIfNotExists : Boolean = true)
    : Future[Either[Throwable, String]] = Future {
-     val response = auth(Http(s"$arangoHost/_db/$db/$api/document/$collectionName").postData(documentString)).asString
-     println("RESPONSE1: "+response.body)
+     val response = auth(Http(s"$arangoHost/$api/document/$collectionName").postData(documentString)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
-         if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
+         if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
          else Right(ok._key.get)
        case Left(error) =>
          logger.error(error.getMessage)
@@ -43,12 +42,10 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
     */
    def replaceDocument(db : String, collectionName: String, documentID : String, documentString : String)
    : Future[Either[Throwable, String]] = Future {
-     val response = auth(Http(s"$arangoHost/_db/$db/$api/document/collectionName/$documentID")
-       .put(documentString)).asString
-     println("RESPONSE2: "+response.body)
+     val response = auth(Http(s"$arangoHost/$api/document/$collectionName/$documentID").put(documentString)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
-         if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
+         if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
          else Right(ok._key.get)
        case Left(error) =>
          logger.error(error.getMessage)
@@ -60,11 +57,10 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
    Returns a list of all URI for all documents from the collection identified by collectionName.
     */
    def getAllDocuments(db : String, collectionName : String): Future[Either[Throwable, List[String]]] = Future {
-     val response = auth(Http(s"$arangoHost/_db/$db/$api/document")
-       .param("collection", collectionName)).asString
-     println("RESPONSE3: "+response.body)
-     decode[Documents](response.body) match {
-       case Right(ok) => Right(ok.documents)
+     val collection = ReadAllDocumentKeys(collectionName)
+     val response = auth(Http(s"$arangoHost/$api/simple/all-keys")).put(collection.asJson.noSpaces).asString
+     decode[ResultList](response.body) match {
+       case Right(ok) => Right(ok.result)
        case Left(error) =>
          logger.error(error.getMessage)
          Left(error)
@@ -73,27 +69,23 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
 
    /*
    Retrieve a document using its unique URI:
+
+   It is unfortunate that this response from Arango has the result structured the way it does, as I seem to be forced
+   to return a String as the driver cannot predict the structure of the returned JSON
     */
    def getDocument(db : String, collectionName : String, documentID : String): Future[Either[Throwable, String]] = Future {
-     val response = auth(Http(s"$arangoHost/_db/$db/$api/document/$collectionName/$documentID")).asString
-     println("RESPONSE4: "+response.body)
-
-     decode[Documents](response.body) match {
-       case Right(ok) => Right(ok.documents.head) //TODO This probably is not right
-       case Left(error) =>
-         logger.error(error.getMessage)
-         Left(error)
-     }
+     val response = auth(Http(s"$arangoHost/$api/document/$collectionName/$documentID")).asString
+     Right(response.body)
    }
 
    /*
    Deletes a document using its unique URI:
     */
    def deleteDocument(db : String, collectionName : String, documentID : String): Future[Either[Throwable, String]] = Future {
-     val response = auth(Http(s"$arangoHost/_db/$db/$api/document/$collectionName/$documentID").method(DELETE)).asString
+     val response = auth(Http(s"$arangoHost/$api/document/$collectionName/$documentID").method(DELETE)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
-         if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
+         if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
          else Right("success")
        case Left(error) =>
          logger.error(error.getMessage)
