@@ -1,5 +1,6 @@
 package com.cornfluence.proteus
 
+import com.cornfluence.proteus.models.{Documents, ResultMessage}
 import com.typesafe.scalalogging.Logger
 
 import scala.concurrent.Future
@@ -8,7 +9,6 @@ import io.circe._
 import io.circe.generic.auto._
 import io.circe.parser.{decode, _}
 import io.circe.syntax._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 object DocumentClient {
    def apply(name : String) = new DocumentClient(databaseName = name)
@@ -17,7 +17,7 @@ object DocumentClient {
 }
 
 class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String)
-  extends ArangoClient(host, port, https, databaseName) {
+  extends ArangoClient(host, port, https, databaseName) with Auth {
 
   private val logger = Logger[DocumentClient]
 
@@ -26,13 +26,11 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
     */
    def createDocument(db : String, collectionName: String, documentString : String, createIfNotExists : Boolean = true)
    : Future[Either[Throwable, String]] = Future {
-     val response = Http(s"$arangoHost/_db/$db/_api/document")
-        .param("collection", collectionName)
-        .param("createCollection", createIfNotExists.toString)
-        .postData(documentString).asString
+     val response = auth(Http(s"$arangoHost/_db/$db/$api/document/$collectionName").postData(documentString)).asString
+     println("RESPONSE1: "+response.body)
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
-         if(ok.error) Left(new Exception(ok.errorMessage.get))
+         if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
          else Right(ok._key.get)
        case Left(error) =>
          logger.error(error.getMessage)
@@ -45,11 +43,12 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
     */
    def replaceDocument(db : String, collectionName: String, documentID : String, documentString : String)
    : Future[Either[Throwable, String]] = Future {
-     val response = Http(s"$arangoHost/_db/$db/_api/document/collectionName/$documentID")
-       .put(documentString).asString
+     val response = auth(Http(s"$arangoHost/_db/$db/$api/document/collectionName/$documentID")
+       .put(documentString)).asString
+     println("RESPONSE2: "+response.body)
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
-         if(ok.error) Left(new Exception(ok.errorMessage.get))
+         if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
          else Right(ok._key.get)
        case Left(error) =>
          logger.error(error.getMessage)
@@ -61,8 +60,9 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
    Returns a list of all URI for all documents from the collection identified by collectionName.
     */
    def getAllDocuments(db : String, collectionName : String): Future[Either[Throwable, List[String]]] = Future {
-     val response = Http(s"$arangoHost/_db/$db/_api/document")
-       .param("collection", collectionName).asString
+     val response = auth(Http(s"$arangoHost/_db/$db/$api/document")
+       .param("collection", collectionName)).asString
+     println("RESPONSE3: "+response.body)
      decode[Documents](response.body) match {
        case Right(ok) => Right(ok.documents)
        case Left(error) =>
@@ -75,7 +75,9 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
    Retrieve a document using its unique URI:
     */
    def getDocument(db : String, collectionName : String, documentID : String): Future[Either[Throwable, String]] = Future {
-     val response = Http(s"$arangoHost/_db/$db/_api/document/$collectionName/$documentID").asString
+     val response = auth(Http(s"$arangoHost/_db/$db/$api/document/$collectionName/$documentID")).asString
+     println("RESPONSE4: "+response.body)
+
      decode[Documents](response.body) match {
        case Right(ok) => Right(ok.documents.head) //TODO This probably is not right
        case Left(error) =>
@@ -88,10 +90,10 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
    Deletes a document using its unique URI:
     */
    def deleteDocument(db : String, collectionName : String, documentID : String): Future[Either[Throwable, String]] = Future {
-     val response = Http(s"$arangoHost/_db/$db/_api/document/$collectionName/$documentID").method("DELETE").asString
+     val response = auth(Http(s"$arangoHost/_db/$db/$api/document/$collectionName/$documentID").method(DELETE)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
-         if(ok.error) Left(new Exception(ok.errorMessage.get))
+         if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
          else Right("success")
        case Left(error) =>
          logger.error(error.getMessage)

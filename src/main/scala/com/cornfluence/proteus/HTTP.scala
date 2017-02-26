@@ -1,5 +1,6 @@
 package com.cornfluence.proteus
 
+import com.cornfluence.proteus.models.ResultMessage
 import com.typesafe.scalalogging.Logger
 
 import scalaj.http.{HttpRequest, HttpResponse}

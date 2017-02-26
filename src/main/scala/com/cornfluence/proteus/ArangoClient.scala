@@ -1,6 +1,6 @@
 package com.cornfluence.proteus
 
-import com.typesafe.config.ConfigFactory
+import com.cornfluence.proteus.models._
 import com.typesafe.scalalogging.Logger
 
 import scala.concurrent.Future
@@ -10,8 +10,6 @@ import io.circe.generic.auto._
 import io.circe.parser.{decode, _}
 import io.circe.syntax._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 object ArangoClient {
   def apply(name: String) = new ArangoClient(databaseName = name)
 
@@ -19,14 +17,11 @@ object ArangoClient {
     new ArangoClient(host, port, https, databaseName)
 }
 
-trait Auth {
+trait Auth extends ArangoConfig {
 
   private val logger = Logger("Auth")
 
   def auth(request: HttpRequest)(implicit arangoHost: String): HttpRequest = {
-    val conf = ConfigFactory.load()
-    val userName = conf.getString("proteus.user")
-    val password = conf.getString("proteus.password")
     val auth = Auth(userName, password)
     lazy val token = {
       val response: HttpResponse[String] = Http(s"$arangoHost/_open/auth").postData(auth.asJson.noSpaces).asString
@@ -63,7 +58,6 @@ trait Auth {
 class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String) extends Auth {
   private val logger = Logger[ArangoClient]
   protected implicit val arangoHost: String = if (https) s"https://$host:$port" else s"http://$host:$port"
-  private val api = "_api"
   private val database = "database"
   type JWT = String
   type DatabaseName = String
@@ -100,7 +94,7 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
     val response: HttpResponse[String] = auth(Http(s"$arangoHost/$api/$database").postData(postData.asJson.noSpaces)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error) Left(new Exception(ok.errorMessage.get))
+        if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
         else Right(())
       case Left(error) => Left(error)
     }
@@ -110,10 +104,24 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
   Deletes the database along with all data stored in it
    */
   def deleteDatabase(dbName: String): Future[Either[Throwable, Unit]] = Future {
-    val response: HttpResponse[String] = auth(Http(s"$arangoHost/$api/$database/$dbName").method("DELETE")).asString
+    val response: HttpResponse[String] = auth(Http(s"$arangoHost/$api/$database/$dbName").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error) Left(new Exception(ok.errorMessage.get))
+        if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
+        else Right(())
+      case Left(error) => Left(error)
+    }
+  }
+
+  /*
+  Creates a new collection
+  */
+  def createCollection(collectionName: String): Future[Either[Throwable, Unit]] = Future {
+    val postData = Collection(collectionName)
+    val response: HttpResponse[String] = auth(Http(s"$arangoHost/$api/collection").postData(postData.asJson.noSpaces)).asString
+    decode[ResultMessage](response.body) match {
+      case Right(ok) =>
+        if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
         else Right(())
       case Left(error) => Left(error)
     }
