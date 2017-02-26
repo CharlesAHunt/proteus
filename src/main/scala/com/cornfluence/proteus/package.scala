@@ -3,7 +3,7 @@ package com.cornfluence
 package object proteus {
 
   val api = "_api"
-
+  val db = "_db"
 
   val DELETE = "DELETE"
 

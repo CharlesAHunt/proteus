@@ -116,9 +116,9 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
   /*
   Creates a new collection
   */
-  def createCollection(collectionName: String): Future[Either[Throwable, CollectionResponse]] = Future {
+  def createCollection(dbName: String, collectionName: String): Future[Either[Throwable, CollectionResponse]] = Future {
     val postData = Collection(collectionName)
-    val response: HttpResponse[String] = auth(Http(s"$arangoHost/$api/collection").postData(postData.asJson.noSpaces)).asString
+    val response: HttpResponse[String] = auth(Http(s"$arangoHost/$db/$dbName/$api/collection").postData(postData.asJson.noSpaces)).asString
     decode[CollectionResponse](response.body) match {
       case Right(ok) =>
         if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
@@ -130,8 +130,8 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
   /*
   Drops a collection
   */
-  def dropCollection(collectionName: String): Future[Either[Throwable, CollectionResponse]] = Future {
-    val response: HttpResponse[String] = auth(Http(s"$arangoHost/$api/collection/$collectionName").method(DELETE)).asString
+  def dropCollection(dbName: String, collectionName: String): Future[Either[Throwable, CollectionResponse]] = Future {
+    val response: HttpResponse[String] = auth(Http(s"$arangoHost/$db/$dbName/$api/collection/$collectionName").method(DELETE)).asString
     decode[CollectionResponse](response.body) match {
       case Right(ok) =>
         if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))

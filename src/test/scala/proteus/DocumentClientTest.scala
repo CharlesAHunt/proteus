@@ -7,7 +7,6 @@ import org.scalatest.Matchers._
 
 import scala.language.postfixOps
 import scala.concurrent.{Await, ExecutionContext}
-import ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
 class DocumentClientTest extends FunSpec {
@@ -39,7 +38,7 @@ class DocumentClientTest extends FunSpec {
 
     describe("Create Collection") {
       it("should create a collection") {
-        val result = driver.createCollection(testCollection)
+        val result = driver.createCollection(testDB, testCollection)
 
         val res = Await.result(result, 5 second)
 
@@ -76,7 +75,6 @@ class DocumentClientTest extends FunSpec {
     }
     describe("Retrieve one document by handle") {
       it("should retrieve one document from the test collection") {
-        Thread.sleep(500)
         val result = driver.getDocument(testDB, testCollection, testDocID)
         val res = Await.result(result, 5 second)
         res match {
@@ -121,7 +119,7 @@ class DocumentClientTest extends FunSpec {
     }
     describe("Drop Collection") {
       it("should drop a collection") {
-        val result = driver.dropCollection(testCollection)
+        val result = driver.dropCollection(testDB, testCollection)
 
         val res = Await.result(result, 5 second)
 

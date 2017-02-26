@@ -1,12 +1,12 @@
 package com.cornfluence.proteus.models
 
 case class Edge(
-  _id: String,
-  _rev: String,
-  _key: String,
   _from: String,
   _to: String,
-  $label: String
+  _id: Option[String] = None,
+  _rev: Option[String] = None,
+  _key: Option[String] = None,
+  $label: Option[String] = None
 )
 
 case class Database(
@@ -32,4 +32,15 @@ case class User(
 //TODO: more attributes here
 case class Collection(
   name: String
+)
+
+case class Graph(
+  name : String,
+  edgeDefinitions : List[EdgeDefinition]
+)
+
+case class EdgeDefinition(
+  collection : String,
+  from : List[String],
+  to : List[String]
 )

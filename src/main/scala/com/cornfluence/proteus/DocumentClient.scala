@@ -24,9 +24,9 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
   /*
    Creates a new document in the collection named collection
     */
-   def createDocument(db : String, collectionName: String, documentString : String, createIfNotExists : Boolean = true)
+   def createDocument(dbName : String, collectionName: String, documentString : String)
    : Future[Either[Throwable, String]] = Future {
-     val response = auth(Http(s"$arangoHost/$api/document/$collectionName").postData(documentString)).asString
+     val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName").postData(documentString)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
          if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
@@ -40,9 +40,9 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
    /*
    Replaces a document with documentString
     */
-   def replaceDocument(db : String, collectionName: String, documentID : String, documentString : String)
+   def replaceDocument(dbName : String, collectionName: String, documentID : String, documentString : String)
    : Future[Either[Throwable, String]] = Future {
-     val response = auth(Http(s"$arangoHost/$api/document/$collectionName/$documentID").put(documentString)).asString
+     val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName/$documentID").put(documentString)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
          if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
@@ -56,9 +56,9 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
    /*
    Returns a list of all URI for all documents from the collection identified by collectionName.
     */
-   def getAllDocuments(db : String, collectionName : String): Future[Either[Throwable, List[String]]] = Future {
+   def getAllDocuments(dbName : String, collectionName : String): Future[Either[Throwable, List[String]]] = Future {
      val collection = ReadAllDocumentKeys(collectionName)
-     val response = auth(Http(s"$arangoHost/$api/simple/all-keys")).put(collection.asJson.noSpaces).asString
+     val response = auth(Http(s"$arangoHost/$db/$dbName/$api/simple/all-keys")).put(collection.asJson.noSpaces).asString
      decode[ResultList](response.body) match {
        case Right(ok) => Right(ok.result)
        case Left(error) =>
@@ -73,16 +73,16 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
    It is unfortunate that this response from Arango has the result structured the way it does, as I seem to be forced
    to return a String as the driver cannot predict the structure of the returned JSON
     */
-   def getDocument(db : String, collectionName : String, documentID : String): Future[Either[Throwable, String]] = Future {
-     val response = auth(Http(s"$arangoHost/$api/document/$collectionName/$documentID")).asString
+   def getDocument(dbName : String, collectionName : String, documentID : String): Future[Either[Throwable, String]] = Future {
+     val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName/$documentID")).asString
      Right(response.body)
    }
 
    /*
    Deletes a document using its unique URI:
     */
-   def deleteDocument(db : String, collectionName : String, documentID : String): Future[Either[Throwable, String]] = Future {
-     val response = auth(Http(s"$arangoHost/$api/document/$collectionName/$documentID").method(DELETE)).asString
+   def deleteDocument(dbName : String, collectionName : String, documentID : String): Future[Either[Throwable, String]] = Future {
+     val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName/$documentID").method(DELETE)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
          if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))

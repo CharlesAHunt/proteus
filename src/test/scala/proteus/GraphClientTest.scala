@@ -34,9 +34,40 @@ class GraphClientTest extends FunSpec {
       }
     }
 
+    describe("Create Graph") {
+      it("should create a graph") {
+
+        val graphDriver = new GraphClient(databaseName = testDB)
+        val result = Await.result(graphDriver.createGraph(testDB, "testGraph", List()), 5 second)
+        result match {
+          case Left(err) => fail(err)
+          case Right(ok) => ok
+        }
+      }
+    }
+
+    describe("Drop Graph") {
+      it("should drop the graph") {
+
+        val graphDriver = new GraphClient(databaseName = testDB)
+        val result = Await.result(graphDriver.dropGraph(testDB, "testGraph"), 5 second)
+        result match {
+          case Left(err) => fail(err)
+          case Right(ok) => ok
+        }
+      }
+    }
+
+    describe("Create Vertex") {
+      it("should create edge in test collection") {
+
+        val docDriver = new DocumentClient(databaseName = testDB)
+        docDriver
+      }
+    }
+
     describe("Create Edge") {
       it("should create edge in test collection") {
-        Thread.sleep(1000)
         val docDriver = new DocumentClient(databaseName = testDB)
 
         val result1 = docDriver.createDocument(testDB, testVertexCollection, """{ "Hello": "World" }""")
@@ -81,7 +112,6 @@ class GraphClientTest extends FunSpec {
     }
     describe("Replace one edge by handle") {
       it("should replace one edge from the test collection") {
-        Thread.sleep(500)
         val driver = new GraphClient(databaseName = testDB)
         val result = driver.replaceEdge(testDB, testEdgeCollection, testDocID, """{ "Hello": "Arango" }""")
         val res = Await.result(result, 5 second)

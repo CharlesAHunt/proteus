@@ -71,3 +71,26 @@ case class CollectionResponse(
   errorNum: Option[Int],
   errorMessage: Option[String]
 )
+
+case class GraphResponse(
+  error: Boolean,
+  code: Int,
+  graph: GraphRes
+)
+
+case class GraphRes(
+  name : String,
+  edgeDefinitions : List[EdgeDefinition],
+  orphanCollections: List[String] = List(),
+  isSmart: Boolean,
+  numberOfShards: Long,
+  smartGraphAttribute: String,
+  _id: String,
+  _rev: String
+)
+
+case class DropGraphResponse(
+  error:Boolean,
+  removed:Boolean,
+  code:Int
+)
