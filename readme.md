@@ -1,6 +1,6 @@
 # Proteus
 
-[![Maven Central](https://img.shields.io/maven-central/v/org.apache.maven/apache-maven.svg)](https://maven-badges.herokuapp.com/maven-central/com.cornfluence/proteus)
+[![Maven Central](https://img.shields.io/maven-central/v/com.cornfluence/proteus_2.12.svg)](https://maven-badges.herokuapp.com/maven-central/com.cornfluence/proteus_2.12)
 
 ArangoDB driver for Scala.
 
