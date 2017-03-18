@@ -21,24 +21,37 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
 
   private val logger = Logger[DocumentClient]
 
-  /*
-   Creates a new document in the collection named collection
+  /**
+    * Creates a new document in the collection named collection
+    *
+    * @param dbName
+    * @param collectionName
+    * @param documentString
+    * @return document key
     */
-   def createDocument(dbName : String, collectionName: String, documentString : String)
-   : Future[Either[Throwable, String]] = Future {
+   def createDocument(
+     dbName : String,
+     collectionName: String,
+     documentString : String): Future[Either[Throwable, String]] = Future {
      val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName").postData(documentString)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
          if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
-         else Right(ok._key.get)
+         else ok._key.toRight[Throwable](new Exception("Document key is missing"))
        case Left(error) =>
          logger.error(error.getMessage)
          Left(error)
      }
    }
 
-   /*
-   Replaces a document with documentString
+  /**
+    * Replaces a document with documentString
+    *
+    * @param dbName
+    * @param collectionName
+    * @param documentID
+    * @param documentString
+    * @return document key
     */
    def replaceDocument(dbName : String, collectionName: String, documentID : String, documentString : String)
    : Future[Either[Throwable, String]] = Future {
@@ -46,15 +59,19 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
          if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
-         else Right(ok._key.get)
+         else ok._key.toRight[Throwable](new Exception("Document key is missing"))
        case Left(error) =>
          logger.error(error.getMessage)
          Left(error)
      }
    }
 
-   /*
-   Returns a list of all URI for all documents from the collection identified by collectionName.
+  /**
+    * Returns a list of all URI for all documents from the collection identified by collectionName.
+    *
+    * @param dbName
+    * @param collectionName
+    * @return
     */
    def getAllDocuments(dbName : String, collectionName : String): Future[Either[Throwable, List[String]]] = Future {
      val collection = CollectionName(collectionName)
@@ -67,19 +84,26 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
      }
    }
 
-   /*
-   Retrieve a document using its unique URI:
-
-   It is unfortunate that this response from Arango has the result structured the way it does, as I seem to be forced
-   to return a String as the driver cannot predict the structure of the returned JSON
+  /**
+    * Retrieve a document using its unique URI:
+    *
+    * @param dbName
+    * @param collectionName
+    * @param documentID
+    * @return document JSON body
     */
    def getDocument(dbName : String, collectionName : String, documentID : String): Future[Either[Throwable, String]] = Future {
      val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName/$documentID")).asString
      Right(response.body)
    }
 
-   /*
-   Deletes a document using its unique URI:
+  /**
+    * Deletes a document using its unique URI
+    *
+    * @param dbName
+    * @param collectionName
+    * @param documentID
+    * @return
     */
    def deleteDocument(dbName : String, collectionName : String, documentID : String): Future[Either[Throwable, String]] = Future {
      val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName/$documentID").method(DELETE)).asString

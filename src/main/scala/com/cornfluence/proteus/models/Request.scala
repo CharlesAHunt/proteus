@@ -1,12 +1,9 @@
 package com.cornfluence.proteus.models
 
 case class Edge(
+  `type` : String,
   _from: String,
-  _to: String,
-  _id: Option[String] = None,
-  _rev: Option[String] = None,
-  _key: Option[String] = None,
-  $label: Option[String] = None
+  _to: String
 )
 
 case class Database(

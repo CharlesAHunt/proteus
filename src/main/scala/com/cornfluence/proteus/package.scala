@@ -4,6 +4,7 @@ package object proteus {
 
   val api = "_api"
   val db = "_db"
+  val gharial = "gharial"
 
   val DELETE = "DELETE"
 

@@ -14,42 +14,55 @@ You may need to add the Sonatype nexus to your resolvers:
 
 sbt:
 ```
-libraryDependencies += "com.cornfluence" % "proteus_2.11" % "0.4.0"
+libraryDependencies += "com.cornfluence" % "proteus_2.12" % "0.6.0"
 ```
 
 maven:   
 ```
 <dependency>
   <groupId>com.cornfluence</groupId>
-  <artifactId>proteus_2.11</artifactId>
-  <version>0.4.0</version>
+  <artifactId>proteus_2.12</artifactId>
+  <version>0.6.0</version>
   <classifier>sources</classifier>
 </dependency>
 ```
 
+Note: Versions of Proteus less than 0.6.0 are for ArangoDB 2.x and built with Scala 2.11
+
 ## Examples
 
-###Ops
+### Client API
 
-All non-GET methods return a 'Future[Either[Error,String]]', whereas the String is the success message, and the Error contains all error information.
+            val client = DocumentClient(name = "test")
+        
+            val client = GraphClient(name = "test")
 
-GET methods return a 'Future[String]' representing a potential individual data object or a 'Future[List[String]]'.
-
-###Database Ops
+### Database API
 
 Create a database:
 
-            val client = DocumentClient(name = "test")
-            val result = client.getDatabaseList
+            client.createDatabase(dbName, List(User(username = "user", password = "pass", active = true)))
+            
+            client.getDatabaseList
+            
+            client.getCurrentDatabase
             
 Delete a database:
             
             client.deleteDatabase("test")
             
-###Document Ops
+            
+### Collection API
+
+            client.createCollection(testDB, testCollection)
+    
+            client.dropCollection(testDB, testCollection)
+
+            
+### Document API
                         
 Create a document (returning the document id as a string):
-            
+
             client.createDocument("test","testCollection","""{ "Hello": "World" }""")
             
 Fetch all documents:
@@ -68,28 +81,31 @@ Remove a document:
 
             client.deleteDocument("test", "testCollection", "documentID")
             
-###Graph Ops
+### Graph API
 
-Use an edge client (You can reuse the same database for edges)
+ (Graph API is still under some development)
+ 
+Create a graph
 
-            val client = EdgeClient(name = "test")
+            driver.createGraph("graphName", List())
+ 
+Drop a graph
+
+            driver.dropGraph("graphName")
+ 
+Create a vertex collection
+
+            client.createVertexCollection("graphName", "vertexCollectionName")
+
+Create an edge collection
+
+            client.createEdgeCollection("graphName", "edgeCollectionName", List("vertexCollectionName"), List("otherVertexCollectionName"))
+
+Create a vertex
+
+            client.createVertex("graphName", "vertexCollectionName", """{"free":"style"}""")
+
+Create an edge
+
+            client.createEdge("graphName", "edgeCollectionName", "typeName", "vertexOneID", "vertexTwoID")
             
-Create an edge (returning the edge id as a string):
-            
-            client.createEdge("test","testCollection","""{ "Hello": "World" }""","fromCollection","toCollection","fromVertice","toVertice")
-
-Fetch all edges:
-
-            client.getAllEdges("test", "testCollection", "verticeToStartFrom", "directionToTraverse")
-            
-Fetch a single edge:
-
-            client.getEdge("test", "testCollection", "edgeID")
-            
-Update/Replace an edge:
-
-            client.replaceEdge("test", "testCollection", "documentID","""{ "Hello": "World" }""")
-            
-Remove an edge:
-
-            client.deleteEdge("test", "testCollection", "edgeID")

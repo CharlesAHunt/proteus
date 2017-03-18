@@ -1,8 +1,8 @@
 package proteus
 
-import com.cornfluence.proteus.models.User
 import com.cornfluence.proteus.GraphClient
 import org.scalatest.FunSpec
+import org.scalatest.Matchers._
 import org.scalatest.Matchers._
 
 import scala.concurrent.{Await, ExecutionContext}
@@ -15,6 +15,7 @@ class GraphClientTest extends FunSpec {
   val testDB = "testGraph"
   val testEdgeCollection = "testEdgeCollection"
   val testVertexCollection = "testVertexCollection"
+  val testVertexCollection2 = "testVertexCollection2"
   var testDocID = ""
   var fromID = ""
 
@@ -32,8 +33,8 @@ class GraphClientTest extends FunSpec {
       }
     }
 
-    describe("Create Vertex") {
-      it("should create edge in test collection") {
+    describe("Create Vertex Collection") {
+      it("should create vertex collection") {
         val result = Await.result(driver.createVertexCollection(testDB, testVertexCollection), 5 second)
         result match {
           case Left(err) => fail(err)
@@ -42,29 +43,46 @@ class GraphClientTest extends FunSpec {
       }
     }
 
-//    describe("Create Edge") {
-//      it("should create edge in test collection") {
-//        val result1 = driver.createVertex(testDB, testVertexCollection, """{ "Hello": "World" }""")
-//        val res1 = Await.result(result1, 5 second)
-//        println("RES!:  "+res1)
-//        fromID = res1.right.get
-//
-//        val result2 = driver.createVertex(testDB, testVertexCollection, """{ "Hello": "World" }""")
-//        val res2 = Await.result(result2, 5 second)
-//        val toID = res2.right.get
-//
-//        val result3 = driver.createEdge(testEdgeCollection, fromID, toID)
-//
-//        val res3 = Await.result(result3, 5 second)
-//        testDocID = res3.right.get
-//        val res4 = Await.result(result3, 5 second)
-//
-//        res4 match {
-//          case Left(err) => fail(err)
-//          case Right(ok) => ok.toLong should be > 0L
-//        }
-//      }
-//    }
+    describe("Create Vertex") {
+      it("should create vertex in vertex collection") {
+        val result = Await.result(driver.createVertex(testDB, testVertexCollection, """{"test":"test"}"""), 5 second)
+        result match {
+          case Left(err) => fail(err)
+          case Right(ok) => ok
+        }
+      }
+    }
+
+    describe("Create Edge collection") {
+      it("should create edge collection") {
+        Await.result(driver.createVertex(testDB, testVertexCollection, """{ "Hello": "World" }"""), 5 second)
+        Await.result(driver.createVertex(testDB, testVertexCollection2, """{ "Hello": "World" }"""), 5 second)
+
+        val result = driver.createEdgeCollection(testDB, testEdgeCollection, List(testVertexCollection), List(testVertexCollection2))
+        val res = Await.result(result, 5 second)
+
+        res match {
+          case Left(err) => fail(err)
+          case Right(ok) => ok.head.collection shouldEqual testEdgeCollection
+        }
+      }
+    }
+
+    describe("Create an edge in the edge collection") {
+      it("should create edge definition") {
+        val vert = Await.result(driver.createVertex(testDB, testVertexCollection, """{ "Hello": "World" }"""), 5 second).toOption.get
+        val vert2 = Await.result(driver.createVertex(testDB, testVertexCollection2, """{ "Hello": "World" }"""), 5 second).toOption.get
+
+        val result = driver.createEdge(testDB, testEdgeCollection, "test", vert._id, vert2._id)
+        val res = Await.result(result, 5 second)
+
+        res match {
+          case Left(err) => fail(err)
+          case Right(edge) => edge._id.length should be > 0
+        }
+      }
+    }
+
 //    describe("Retrieve All Edges") {
 //      it("should retrieve all edges in test collection") {
 //        val result = driver.getAllEdges(testDB, testEdgeCollection, s"$testVertexCollection/$fromID")

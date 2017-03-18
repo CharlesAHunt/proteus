@@ -12,12 +12,20 @@ case class ResultMessage(
   errorMessage: Option[String] = None,
   result: Option[Boolean] = None,
   graph: Option[GraphResponse] = None,
+  vertex: Option[EdgeOrVertex] = None,
+  edge: Option[EdgeOrVertex] = None,
   code: Option[Int] = None,
   errorNum: Option[Int] = None,
   _id: Option[String] = None,
   _rev: Option[String] = None,
   _key: Option[String] = None,
   _oldRev : Option[String] = None
+)
+
+case class EdgeOrVertex(
+  _id: String,
+  _rev: String,
+  _key: String
 )
 
 case class Edges(
