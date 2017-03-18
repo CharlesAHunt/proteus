@@ -41,7 +41,7 @@ Note: Versions of Proteus less than 0.6.0 are for ArangoDB 2.x and built with Sc
 
 Create a database:
 
-            client.createDatabase(dbName, List(User(username = "user", password = "pass", active = true)))
+            client.createDatabase("dbName", List(User(username = "user", password = "pass", active = true)))
             
             client.getDatabaseList
             
@@ -49,37 +49,37 @@ Create a database:
             
 Delete a database:
             
-            client.deleteDatabase("test")
+            client.deleteDatabase("dbName")
             
             
 ### Collection API
 
-            client.createCollection(testDB, testCollection)
+            client.createCollection("dbName", testCollection)
     
-            client.dropCollection(testDB, testCollection)
+            client.dropCollection("dbName", testCollection)
 
             
 ### Document API
                         
 Create a document (returning the document id as a string):
 
-            client.createDocument("test","testCollection","""{ "Hello": "World" }""")
+            client.createDocument("dbName","testCollection","""{ "Hello": "World" }""")
             
 Fetch all documents:
 
-            client.getAllDocuments("test", "testCollection")
+            client.getAllDocuments("dbName", "testCollection")
             
 Fetch a single document:
 
-            client.getDocument("test", "testCollection", "documentID")
+            client.getDocument("dbName", "testCollection", "documentID")
 
 Update/Replace a document:
             
-            client.replaceDocument("test", "testCollection", "documentID","""{ "Hello": "World" }""")
+            client.replaceDocument("dbName", "testCollection", "documentID","""{ "Hello": "World" }""")
             
 Remove a document:
 
-            client.deleteDocument("test", "testCollection", "documentID")
+            client.deleteDocument("dbName", "testCollection", "documentID")
             
 ### Graph API
 
@@ -87,11 +87,11 @@ Remove a document:
  
 Create a graph
 
-            driver.createGraph("graphName", List())
+            client.createGraph("graphName", List())
  
 Drop a graph
 
-            driver.dropGraph("graphName")
+            client.dropGraph("graphName")
  
 Create a vertex collection
 
