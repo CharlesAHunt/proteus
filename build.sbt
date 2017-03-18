@@ -18,6 +18,12 @@ pomIncludeRepository := { _ => false }
 
 scalacOptions ++= Seq("-feature")
 
+credentials += Credentials(Path.userHome / ".sbt" / ".credentials")
+
+sonatypeProfileName := "com.cornfluence"
+
+useGpg := true
+
 publishTo := {
    val nexus = "https://oss.sonatype.org/"
    if (isSnapshot.value)
@@ -26,7 +32,7 @@ publishTo := {
       Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
 
-pomExtra := (
+pomExtra in Global := {
    <url>http://www.cornfluence.com</url>
       <scm>
          <url>git@github.com:CharlesAHunt/proteus.git</url>
@@ -38,7 +44,8 @@ pomExtra := (
             <name>Charles A Hunt</name>
             <url>http://www.cornfluence.com</url>
          </developer>
-      </developers>)
+      </developers>
+  }
 
 licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 

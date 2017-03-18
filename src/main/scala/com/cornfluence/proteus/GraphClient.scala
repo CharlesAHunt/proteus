@@ -129,7 +129,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
         if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
         else ok.graph.map(_.edgeDefinitions).toRight[Throwable](new Exception("Edge definition response missing"))
       case Left(error) =>
-        logger.error("GraphClient.createEdge", error.getMessage)
+        logger.error("GraphClient.createEdgeCollection", error.getMessage)
         Left(error)
     }
   }

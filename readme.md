@@ -1,5 +1,7 @@
 # Proteus
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/cz.jirutka.rsql/rsql-parser/badge.svg)](https://maven-badges.herokuapp.com/maven-central/cz.jirutka.rsql/rsql-parser)
+
 ArangoDB driver for Scala.
 
 The word 'Proteus' comes the adjective protean, with the general meaning of "versatile", "mutable", "capable of assuming many forms". "Protean" has positive connotations of flexibility, versatility and adaptability. 
@@ -28,6 +30,16 @@ maven:
 ```
 
 Note: Versions of Proteus less than 0.6.0 are for ArangoDB 2.x and built with Scala 2.11
+
+## Configuration
+
+To configure your application's ArangoDB user, you will need to add the following to your application.conf
+```
+ proteus {
+   user = "username"       //arangodb default is:  "root"
+   password = "password"   //arangodb default is:  ""
+ }
+```
 
 ## Examples
 
