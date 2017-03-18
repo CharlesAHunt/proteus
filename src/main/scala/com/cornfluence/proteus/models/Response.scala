@@ -11,6 +11,7 @@ case class ResultMessage(
   error: Option[Boolean],
   errorMessage: Option[String] = None,
   result: Option[Boolean] = None,
+  graph: Option[GraphResponse] = None,
   code: Option[Int] = None,
   errorNum: Option[Int] = None,
   _id: Option[String] = None,
@@ -73,15 +74,9 @@ case class CollectionResponse(
 )
 
 case class GraphResponse(
-  error: Boolean,
-  code: Int,
-  graph: GraphRes
-)
-
-case class GraphRes(
-  name : String,
-  edgeDefinitions : List[EdgeDefinition],
-  orphanCollections: List[String] = List(),
+  name: String,
+  edgeDefinitions: List[EdgeDefinition],
+  orphanCollections: List[String],
   isSmart: Boolean,
   numberOfShards: Long,
   smartGraphAttribute: String,

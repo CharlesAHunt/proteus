@@ -18,7 +18,7 @@ case class Documents(
   documents: List[String]
 )
 
-case class ReadAllDocumentKeys(
+case class CollectionName(
   collection: String
 )
 

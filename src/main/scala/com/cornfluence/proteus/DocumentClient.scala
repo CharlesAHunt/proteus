@@ -1,6 +1,6 @@
 package com.cornfluence.proteus
 
-import com.cornfluence.proteus.models.{ReadAllDocumentKeys, ResultList, ResultMessage}
+import com.cornfluence.proteus.models.{CollectionName, ResultList, ResultMessage}
 import com.typesafe.scalalogging.Logger
 
 import scala.concurrent.Future
@@ -57,7 +57,7 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
    Returns a list of all URI for all documents from the collection identified by collectionName.
     */
    def getAllDocuments(dbName : String, collectionName : String): Future[Either[Throwable, List[String]]] = Future {
-     val collection = ReadAllDocumentKeys(collectionName)
+     val collection = CollectionName(collectionName)
      val response = auth(Http(s"$arangoHost/$db/$dbName/$api/simple/all-keys")).put(collection.asJson.noSpaces).asString
      decode[ResultList](response.body) match {
        case Right(ok) => Right(ok.result)

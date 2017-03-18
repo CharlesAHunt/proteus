@@ -22,38 +22,38 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
 
   private val logger = Logger[DocumentClient]
 
-  /*
-Creates a new Graph
-*/
+  /**
+    * Create the Graph
+    *
+    * @param graphName
+    * @param edges
+    * @return
+    */
   def createGraph(
-    db: String,
-    name: String,
-    edges: List[EdgeDefinition]): Future[Either[Throwable, GraphRes]] = Future {
-    val response = auth(Http(s"$arangoHost/$api/gharial").postData(Graph(name, edges).asJson.noSpaces)).asString
-    println("R: " + response.body)
-    decode[GraphResponse](response.body) match {
+    graphName: String,
+    edges: List[EdgeDefinition]): Future[Either[Throwable, GraphResponse]] = Future {
+    val response = auth(Http(s"$arangoHost/$api/gharial").postData(Graph(graphName, edges).asJson.noSpaces)).asString
+    decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error) Left(new Exception(s"Error creating graph with code ${ok.code}"))
-        else Right(ok.graph)
+        if(ok.error.get) Left(new Exception(s"Error creating graph with code ${ok.code}"))
+        else Right(ok.graph.get)
       case Left(error) =>
-        logger.error(error.getMessage)
+        logger.error("GraphClient.createGraph", error.getMessage)
         Left(error)
     }
   }
 
   /*
-Drops a new Graph
+Drops Graph
 */
-  def dropGraph(
-    db: String,
-    name: String): Future[Either[Throwable, Boolean]] = Future {
-    val response = auth(Http(s"$arangoHost/$api/gharial/$name").method(DELETE)).asString
+  def dropGraph(graphName: String): Future[Either[Throwable, Boolean]] = Future {
+    val response = auth(Http(s"$arangoHost/$api/gharial/$graphName").method(DELETE)).asString
     decode[DropGraphResponse](response.body) match {
       case Right(ok) =>
         if(ok.error) Left(new Exception(s"Error dropping graph with code ${ok.code}"))
         else Right(ok.removed)
       case Left(error) =>
-        logger.error(error.getMessage)
+        logger.error("GraphClient.dropGraph", error.getMessage)
         Left(error)
     }
   }
@@ -61,17 +61,19 @@ Drops a new Graph
   /*
 Creates a new vertex in the collection named collection
  */
-  def createVertex(
-    db: String,
-    collectionName: String,
-    data: String): Future[Either[Throwable, String]] = Future {
-    val response = auth(Http(s"$arangoHost/$api/vertex/$collectionName").postData(data)).asString
+  def createVertexCollection(
+    graphName: String,
+    collectionName: String
+  ): Future[Either[Throwable, String]] = Future {
+    val collection = CollectionName(collectionName)
+    val response = auth(Http(s"$arangoHost/$api/gharial/$graphName/vertex").postData(collection.asJson.noSpaces)).asString
+    println("rESP:  "+response)
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
-        else Right(ok._key.get)
+        else Right(ok.graph.get._id)
       case Left(error) =>
-        logger.error(error.getMessage)
+        logger.error("GraphClient.createVertex", error.getMessage)
         Left(error)
     }
   }
@@ -80,21 +82,17 @@ Creates a new vertex in the collection named collection
   Creates a new edge in the collection named collection
    */
   def createEdge(
-    db: String,
     collectionName: String,
-    edgeString: String,
-    fromCollection: String,
-    toCollection: String,
     from: String,
     to: String): Future[Either[Throwable, String]] = Future {
-    val edge = Edge(from, to)
-    val response = auth(Http(s"$arangoHost/$api/edge/$collectionName").postData(edgeString)).asString
+    val edge = Edge(from, to).asJson.noSpaces
+    val response = auth(Http(s"$arangoHost/$api/edge/$collectionName").postData(edge)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
         else Right(ok._key.get)
       case Left(error) =>
-        logger.error(error.getMessage)
+        logger.error("GraphClient.createEdge", error.getMessage)
         Left(error)
     }
   }
@@ -110,7 +108,7 @@ Creates a new vertex in the collection named collection
         if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
         else Right(ok._key.get)
       case Left(error) =>
-        logger.error(error.getMessage)
+        logger.error("GraphClient.replaceEdge", error.getMessage)
         Left(error)
     }
   }
@@ -127,7 +125,7 @@ Creates a new vertex in the collection named collection
         if (ok.error) Left(new Exception("Error getting all edges"))
         else Right(ok.edges)
       case Left(error) =>
-        logger.error(error.getMessage)
+        logger.error("GraphClient.getAllEdges", error.getMessage)
         Left(error)
     }
   }
@@ -142,7 +140,7 @@ Creates a new vertex in the collection named collection
         //if(ok.error) Left(new Exception("Error getting all edges"))
         Right(ok)
       case Left(error) =>
-        logger.error(error.getMessage)
+        logger.error("GraphClient.getEdge", error.getMessage)
         Left(error)
     }
   }
@@ -157,7 +155,7 @@ Creates a new vertex in the collection named collection
         if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
         else Right(())
       case Left(error) =>
-        logger.error(error.getMessage)
+        logger.error("GraphClient.deleteEdge", error.getMessage)
         Left(error)
     }
   }

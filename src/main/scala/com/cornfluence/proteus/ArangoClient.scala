@@ -67,7 +67,7 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
     decode[CurrentDatabase](response.body) match {
       case Right(ok) => Right(ok)
       case Left(error) =>
-        logger.error(error.getMessage)
+        logger.error("ArangoClient.getCurrentDatabase", error.getMessage)
         Left(error)
     }
   }
@@ -81,7 +81,7 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
     decode[ResultList](response.body) match {
       case Right(ok) => Right(ok.result)
       case Left(error) =>
-        logger.error(error.getMessage)
+        logger.error("ArangoClient.getDatabaseList", error.getMessage)
         Left(error)
     }
   }
@@ -96,7 +96,9 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
       case Right(ok) =>
         if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
         else Right(())
-      case Left(error) => Left(error)
+      case Left(error) =>
+        logger.error("ArangoClient.createDatabase", error.getMessage)
+        Left(error)
     }
   }
 
@@ -109,7 +111,9 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
       case Right(ok) =>
         if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
         else Right(())
-      case Left(error) => Left(error)
+      case Left(error) =>
+        logger.error("ArangoClient.deleteDatabase", error.getMessage)
+        Left(error)
     }
   }
 
@@ -123,7 +127,9 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
       case Right(ok) =>
         if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
         else Right(ok)
-      case Left(error) => Left(error)
+      case Left(error) =>
+        logger.error("ArangoClient.createCollection", error.getMessage)
+        Left(error)
     }
   }
 
@@ -136,7 +142,9 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
       case Right(ok) =>
         if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
         else Right(ok)
-      case Left(error) => Left(error)
+      case Left(error) =>
+        logger.error("ArangoClient.dropCollection", error.getMessage)
+        Left(error)
     }
   }
 }
