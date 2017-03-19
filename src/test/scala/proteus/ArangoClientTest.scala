@@ -18,17 +18,6 @@ class ArangoClientTest extends FunSpec {
 
   describe("==============\n| Arango Client Test |\n==============") {
 
-//    describe("Authenticate with Arango") {
-//      it("should return a JWT") {
-//        val result = driver.auth("root", "")
-//        val res = Await.result(result, 5 second)
-//        res match {
-//          case Left(err) => fail(err.getMessage)
-//          case Right(ok) => ok
-//        }
-//      }
-//    }
-
     describe("Create Database") {
       it("should create new Database") {
         val result = driver.createDatabase(testDB, Some(List(User("user", "password"))))
@@ -36,6 +25,26 @@ class ArangoClientTest extends FunSpec {
         res match {
           case Left(err) => fail(err.getMessage)
           case Right(ok) => ok
+        }
+      }
+    }
+
+    describe("Get Databases") {
+      it("should properly retrieve all databases") {
+        val result = driver.getDatabaseList
+        Await.result(result, 5.seconds) match {
+          case Left(err) => fail(err.getMessage)
+          case Right(ok) => assert(ok.nonEmpty)
+        }
+      }
+    }
+
+    describe("Get current database") {
+      it("should properly retrieve the current database") {
+        val result = driver.getCurrentDatabase
+        Await.result(result, 5.seconds) match {
+          case Left(err) => fail(err.getMessage)
+          case Right(ok) => assert(ok.result.name.nonEmpty)
         }
       }
     }

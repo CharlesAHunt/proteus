@@ -1,5 +1,9 @@
 package com.cornfluence
 
+import com.cornfluence.proteus.models.ResultMessage
+
+import scala.concurrent.ExecutionContextExecutorService
+
 package object proteus {
 
   val api = "_api"
@@ -8,10 +12,12 @@ package object proteus {
 
   val DELETE = "DELETE"
 
-  def errorMessage(message: Option[String]) = {
-    message.getOrElse("")
-  }
+  def errorMessage(message: Option[String]): String = message.getOrElse("")
 
-  implicit val proteusEC = new ProteusExecutionContext().ec
+  def error(message: String) = Left(new Exception(message))
+
+  def isError(result: ResultMessage): Boolean = result.error.getOrElse(false)
+
+  implicit val proteusEC: ExecutionContextExecutorService = new ProteusExecutionContext().ec
 
 }

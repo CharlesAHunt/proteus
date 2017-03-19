@@ -17,6 +17,14 @@ object GraphClient {
     new GraphClient(hostMachine, port, https, databaseName)
 }
 
+/**
+  * Manages Graph API operations
+  *
+  * @param hostMachine
+  * @param port
+  * @param https
+  * @param databaseName
+  */
 class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String)
   extends ArangoClient(hostMachine, port, https, databaseName) with Auth {
 
@@ -35,7 +43,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     val response = auth(Http(s"$arangoHost/$api/$gharial").postData(Graph(graphName, edges).asJson.noSpaces)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error.getOrElse(false)) Left(new Exception(s"Error creating graph with code ${ok.code}"))
+        if(isError(ok)) error(s"Error creating graph with code ${ok.code}")
         else ok.graph.toRight[Throwable](new Exception("Graph response missing"))
       case Left(error) =>
         logger.error("GraphClient.createGraph", error.getMessage)
@@ -53,7 +61,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName").method(DELETE)).asString
     decode[DropGraphResponse](response.body) match {
       case Right(ok) =>
-        if(ok.error) Left(new Exception(s"Error dropping graph with code ${ok.code}"))
+        if(ok.error) error(s"Error dropping graph with code ${ok.code}")
         else Right(ok.removed)
       case Left(error) =>
         logger.error("GraphClient.dropGraph", error.getMessage)
@@ -76,7 +84,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex").postData(collection.asJson.noSpaces)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(isError(ok)) error(errorMessage(ok.errorMessage))
         else ok.graph.toRight[Throwable](new Exception("Graph reesponse missing"))
       case Left(error) =>
         logger.error("GraphClient.createVertexCollection", error.getMessage)
@@ -101,7 +109,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$vertexCollection").postData(json)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(isError(ok)) error(errorMessage(ok.errorMessage))
         else ok.vertex.toRight[Throwable](new Exception("Vertex missing from response"))
       case Left(error) =>
         logger.error("GraphClient.createVertex", error.getMessage)
@@ -126,7 +134,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/").postData(edge)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(isError(ok)) error(errorMessage(ok.errorMessage))
         else ok.graph.map(_.edgeDefinitions).toRight[Throwable](new Exception("Edge definition response missing"))
       case Left(error) =>
         logger.error("GraphClient.createEdgeCollection", error.getMessage)
@@ -155,7 +163,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName").postData(edge)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(isError(ok)) error(errorMessage(ok.errorMessage))
         else ok.edge.toRight[Throwable](new Exception("Edge response missing"))
       case Left(error) =>
         logger.error("GraphClient.createEdge", error.getMessage)
@@ -175,7 +183,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName/$edgeKey").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(isError(ok)) error(errorMessage(ok.errorMessage))
         else Right(())
       case Left(error) =>
         logger.error("GraphClient.deleteEdge", error.getMessage)
@@ -195,7 +203,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$collectionName/$vertexKey").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(isError(ok)) error(errorMessage(ok.errorMessage))
         else Right(())
       case Left(error) =>
         logger.error("GraphClient.deleteVertex", error.getMessage)
@@ -215,7 +223,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(isError(ok)) error(errorMessage(ok.errorMessage))
         else Right(())
       case Left(error) =>
         logger.error("GraphClient.deleteEdgeCollection", error.getMessage)
@@ -234,7 +242,7 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$collectionName").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(isError(ok)) error(errorMessage(ok.errorMessage))
         else Right(())
       case Left(error) =>
         logger.error("GraphClient.deleteVertexCollection", error.getMessage)

@@ -16,6 +16,14 @@ object DocumentClient {
       new DocumentClient(host, port, https, databaseName)
 }
 
+/**
+  * Manages Document API operations
+  *
+  * @param host
+  * @param port
+  * @param https
+  * @param databaseName
+  */
 class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String)
   extends ArangoClient(host, port, https, databaseName) with Auth {
 
@@ -36,7 +44,7 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
      val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName").postData(documentString)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
-         if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+         if(isError(ok)) error(errorMessage(ok.errorMessage))
          else ok._key.toRight[Throwable](new Exception("Document key is missing"))
        case Left(error) =>
          logger.error(error.getMessage)
@@ -58,7 +66,7 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
      val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName/$documentID").put(documentString)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
-         if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+         if(isError(ok)) error(errorMessage(ok.errorMessage))
          else ok._key.toRight[Throwable](new Exception("Document key is missing"))
        case Left(error) =>
          logger.error(error.getMessage)
@@ -109,7 +117,7 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
      val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName/$documentID").method(DELETE)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
-         if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+         if(isError(ok)) error(errorMessage(ok.errorMessage))
          else Right(())
        case Left(error) =>
          logger.error(error.getMessage)

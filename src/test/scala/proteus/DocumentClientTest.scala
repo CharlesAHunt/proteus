@@ -17,21 +17,13 @@ class DocumentClientTest extends FunSpec {
   val driver = DocumentClient(name = testDB)
 
   describe("==============\n| Document Client Test |\n==============") {
+
     describe("Create Database") {
       it("should create new Database") {
         val result = driver.createDatabase(testDB, Some(List(User("charles", "password"))))
         Await.result(result, 5.seconds) match {
           case Left(err) => fail(err.getMessage)
           case Right(ok) => ok
-        }
-      }
-    }
-    describe("Get Databases") {
-      it("should properly retrieve all databases") {
-        val result = driver.getDatabaseList
-        Await.result(result, 5.seconds) match {
-          case Left(err) => fail(err.getMessage)
-          case Right(ok) => assert(ok.nonEmpty)
         }
       }
     }
@@ -113,7 +105,7 @@ class DocumentClientTest extends FunSpec {
         val res = Await.result(result, 5 second)
         res match {
           case Left(err) => fail(err)
-          case Right(ok) => ok should include("success")
+          case Right(ok) => ok
         }
       }
     }

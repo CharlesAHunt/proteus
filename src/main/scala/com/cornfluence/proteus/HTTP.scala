@@ -15,7 +15,7 @@ trait HTTP {
 
   def handleResponse[T](response: HttpResponse[String]): Either[ResultMessage, HttpResponse[String]] = {
     response.code match {
-      case c if c.toString.startsWith("2") => Right(response)
+      case code if code.toString.startsWith("2") => Right(response)
       case _ =>
         decode[ResultMessage](response.body) match {
           case Right(ok) => Left(ok)

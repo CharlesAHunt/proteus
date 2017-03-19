@@ -17,6 +17,9 @@ object ArangoClient {
     new ArangoClient(host, port, https, databaseName)
 }
 
+/**
+  * Handles authentication using JWT headers
+  */
 trait Auth extends ArangoConfig {
 
   private val logger = Logger("Auth")
@@ -41,14 +44,14 @@ trait Auth extends ArangoConfig {
   }
 
   private def authToken(request: HttpRequest, jwt: String): HttpRequest =
-    request.header("Authorization",s"bearer $jwt")
+    request.header("Authorization", s"bearer $jwt")
 
   case class Auth(username: String, password: String)
   case class Jwt(jwt: String, must_change_password: Boolean)
 }
 
 /**
-  * General Database management methods
+  * General Database management
   *
   * @param host
   * @param port
@@ -73,9 +76,11 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
   }
 
 
-  /*
-   Retrieves the list of all existing databases
-   */
+  /**
+    * Retrieves the list of all existing databases
+    *
+    * @return
+    */
   def getDatabaseList: Future[Either[Throwable, List[DatabaseName]]] = Future {
     val response: HttpResponse[String] = auth(Http(s"$arangoHost/$api/$database")).asString
     decode[ResultList](response.body) match {
@@ -86,15 +91,19 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
     }
   }
 
-  /*
-  Creates a new database
-   */
+  /**
+    * Creates a new database
+    *
+    * @param dbName
+    * @param users
+    * @return
+    */
   def createDatabase(dbName: String, users: Option[List[User]]): Future[Either[Throwable, Unit]] = Future {
     val postData = Database(dbName, users)
     val response: HttpResponse[String] = auth(Http(s"$arangoHost/$api/$database").postData(postData.asJson.noSpaces)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(isError(ok)) error(errorMessage(ok.errorMessage))
         else Right(())
       case Left(error) =>
         logger.error("ArangoClient.createDatabase", error.getMessage)
@@ -102,14 +111,17 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
     }
   }
 
-  /*
-  Deletes the database along with all data stored in it
-   */
+  /**
+    * Deletes the database along with all data stored in it
+    *
+    * @param dbName
+    * @return
+    */
   def deleteDatabase(dbName: String): Future[Either[Throwable, Unit]] = Future {
     val response: HttpResponse[String] = auth(Http(s"$arangoHost/$api/$database/$dbName").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(isError(ok)) error(errorMessage(ok.errorMessage))
         else Right(())
       case Left(error) =>
         logger.error("ArangoClient.deleteDatabase", error.getMessage)
@@ -117,15 +129,19 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
     }
   }
 
-  /*
-  Creates a new collection
-  */
+  /**
+    * Creates a new collection
+    *
+    * @param dbName
+    * @param collectionName
+    * @return
+    */
   def createCollection(dbName: String, collectionName: String): Future[Either[Throwable, CollectionResponse]] = Future {
     val postData = Collection(collectionName)
     val response: HttpResponse[String] = auth(Http(s"$arangoHost/$db/$dbName/$api/collection").postData(postData.asJson.noSpaces)).asString
     decode[CollectionResponse](response.body) match {
       case Right(ok) =>
-        if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(ok.error) error(errorMessage(ok.errorMessage))
         else Right(ok)
       case Left(error) =>
         logger.error("ArangoClient.createCollection", error.getMessage)
@@ -133,14 +149,18 @@ class ArangoClient(host: String = "localhost", port: Int = 8529, https: Boolean 
     }
   }
 
-  /*
-  Drops a collection
-  */
+  /**
+    * Drops a collection
+    *
+    * @param dbName
+    * @param collectionName
+    * @return
+    */
   def dropCollection(dbName: String, collectionName: String): Future[Either[Throwable, CollectionResponse]] = Future {
     val response: HttpResponse[String] = auth(Http(s"$arangoHost/$db/$dbName/$api/collection/$collectionName").method(DELETE)).asString
     decode[CollectionResponse](response.body) match {
       case Right(ok) =>
-        if(ok.error) Left(new Exception(errorMessage(ok.errorMessage)))
+        if(ok.error) error(errorMessage(ok.errorMessage))
         else Right(ok)
       case Left(error) =>
         logger.error("ArangoClient.dropCollection", error.getMessage)
