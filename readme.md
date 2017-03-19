@@ -1,6 +1,6 @@
 # Proteus
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.cornfluence/proteus_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/com.cornfluence/proteus_2.11)
+[![Maven Central](https://img.shields.io/maven-central/v/com.cornfluence/proteus_2.12.svg)](https://maven-badges.herokuapp.com/maven-central/com.cornfluence/proteus_2.12)
 
 ArangoDB driver for Scala.
 
@@ -16,7 +16,7 @@ You may need to add the Sonatype nexus to your resolvers:
 
 sbt:
 ```
-libraryDependencies += "com.cornfluence" % "proteus_2.12" % "0.6.0"
+libraryDependencies += "com.cornfluence" % "proteus_2.12" % "0.6.5"
 ```
 
 maven:   
@@ -24,7 +24,7 @@ maven:
 <dependency>
   <groupId>com.cornfluence</groupId>
   <artifactId>proteus_2.12</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.5</version>
   <classifier>sources</classifier>
 </dependency>
 ```
@@ -121,3 +121,18 @@ Create an edge
 
             client.createEdge("graphName", "edgeCollectionName", "typeName", "vertexOneID", "vertexTwoID")
             
+Delete an edge
+
+            client.deleteEdge("graphName", "edgeCollectionName", "edgeKey")
+
+Delete an edge collection
+
+            client.deleteEdgeCollection("graphName", "edgeCollectionName")
+
+Delete a vertex
+
+            client.deleteVertex("graphName", "vertexCollectionName", "vertexKey")
+
+Delete a vertex collection
+
+            client.deleteVertexCollection("graphName", "vertexCollectionName")

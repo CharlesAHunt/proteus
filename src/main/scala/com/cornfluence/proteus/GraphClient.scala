@@ -163,8 +163,87 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     }
   }
 
-  //TODO modify edge, replace edge, delete edge, and same for collection of edges
-  //TODO modify vertex, replace vertex, delete vertex, and same for collection of vertices
+  /**
+    * Removes an edge from the collection.
+    *
+    * @param graphName
+    * @param collectionName
+    * @param edgeKey
+    * @return
+    */
+  def deleteEdge(graphName: String, collectionName: String, edgeKey: String): Future[Either[Throwable, Unit]] = Future {
+    val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName/$edgeKey").method(DELETE)).asString
+    decode[ResultMessage](response.body) match {
+      case Right(ok) =>
+        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+        else Right(())
+      case Left(error) =>
+        logger.error("GraphClient.deleteEdge", error.getMessage)
+        Left(error)
+    }
+  }
+
+  /**
+    * Removes a vertex from the collection.
+    *
+    * @param graphName
+    * @param collectionName
+    * @param vertexKey
+    * @return
+    */
+  def deleteVertex(graphName: String, collectionName: String, vertexKey: String): Future[Either[Throwable, Unit]] = Future {
+    val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$collectionName/$vertexKey").method(DELETE)).asString
+    decode[ResultMessage](response.body) match {
+      case Right(ok) =>
+        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+        else Right(())
+      case Left(error) =>
+        logger.error("GraphClient.deleteVertex", error.getMessage)
+        Left(error)
+    }
+  }
+
+  /**
+    * Remove one edge definition from the graph. This will only remove the edge collection, the vertex collections
+    *  remain untouched and can still be used in your queries.
+    *
+    * @param graphName
+    * @param collectionName
+    * @return
+    */
+  def deleteEdgeCollection(graphName: String, collectionName: String): Future[Either[Throwable, Unit]] = Future {
+    val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName").method(DELETE)).asString
+    decode[ResultMessage](response.body) match {
+      case Right(ok) =>
+        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+        else Right(())
+      case Left(error) =>
+        logger.error("GraphClient.deleteEdgeCollection", error.getMessage)
+        Left(error)
+    }
+  }
+
+  /**
+    * Removes a vertex collection from the graph and optionally deletes the collection, if it is not used in any other graph.
+    *
+    * @param graphName
+    * @param collectionName
+    * @return
+    */
+  def deleteVertexCollection(graphName: String, collectionName: String): Future[Either[Throwable, Unit]] = Future {
+    val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$collectionName").method(DELETE)).asString
+    decode[ResultMessage](response.body) match {
+      case Right(ok) =>
+        if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
+        else Right(())
+      case Left(error) =>
+        logger.error("GraphClient.deleteVertexCollection", error.getMessage)
+        Left(error)
+    }
+  }
+
+  //TODO modify edge, replace edge, and same for collection of edges
+  //TODO modify vertex, replace vertex, and same for collection of vertices
 
 
 }

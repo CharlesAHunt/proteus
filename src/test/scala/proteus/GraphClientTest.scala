@@ -16,8 +16,8 @@ class GraphClientTest extends FunSpec {
   val testEdgeCollection = "testEdgeCollection"
   val testVertexCollection = "testVertexCollection"
   val testVertexCollection2 = "testVertexCollection2"
-  var testDocID = ""
-  var fromID = ""
+  var createdEdgeKey = ""
+  var createdVertexKey = ""
 
   val driver = new GraphClient(databaseName = testDB)
 
@@ -73,66 +73,64 @@ class GraphClientTest extends FunSpec {
         val vert = Await.result(driver.createVertex(testDB, testVertexCollection, """{ "Hello": "World" }"""), 5 second).toOption.get
         val vert2 = Await.result(driver.createVertex(testDB, testVertexCollection2, """{ "Hello": "World" }"""), 5 second).toOption.get
 
+        createdVertexKey = vert._key
+
         val result = driver.createEdge(testDB, testEdgeCollection, "test", vert._id, vert2._id)
         val res = Await.result(result, 5 second)
 
         res match {
           case Left(err) => fail(err)
-          case Right(edge) => edge._id.length should be > 0
+          case Right(edge) =>
+            createdEdgeKey = edge._key
+            edge._id.length should be > 0
         }
       }
     }
 
-//    describe("Retrieve All Edges") {
-//      it("should retrieve all edges in test collection") {
-//        val result = driver.getAllEdges(testDB, testEdgeCollection, s"$testVertexCollection/$fromID")
-//        val res = Await.result(result, 5 second)
-//        res match {
-//          case Left(err) => fail(err)
-//          case Right(ok) => //ok should include(testVertexCollection)
-//        }
-//      }
-//    }
-//    describe("Retrieve one edge by handle") {
-//      it("should retrieve one edge from the test collection") {
-//        val result = driver.getEdge(testDB, testEdgeCollection, testDocID)
-//        val res = Await.result(result, 5 second)
-//        res match {
-//          case Left(err) => fail(err)
-//          case Right(ok) => //ok should include( s"""{"Hello":"World","_id":"$testEdgeCollection/""" + testDocID)
-//        }
-//      }
-//    }
-//    describe("Replace one edge by handle") {
-//      it("should replace one edge from the test collection") {
-//        val result = driver.replaceEdge(testDB, testEdgeCollection, testDocID, """{ "Hello": "Arango" }""")
-//        val res = Await.result(result, 5 second)
-//        res match {
-//          case Left(err) => fail(err)
-//          case Right(ok) => res.right.get should include(testDocID)
-//        }
-//      }
-//    }
-//    describe("Ensure replaced edge has changed") {
-//      it("replaced edge should have changed in the test collection") {
-//        val result = driver.getEdge(testDB, testEdgeCollection, testDocID)
-//        val res = Await.result(result, 5 second)
-//        res match {
-//          case Left(err) => fail(err)
-//          case Right(ok) => //ok should include( s"""{"Hello":"Arango","_id":"$testEdgeCollection/""" + testDocID)
-//        }
-//      }
-//    }
-//    describe("Remove a edge by handle") {
-//      it("should remove one edge from the test collection") {
-//        val result = driver.deleteEdge(testDB, testEdgeCollection, testDocID)
-//        val res = Await.result(result, 5 second)
-//        res match {
-//          case Left(err) => fail(err)
-//          case Right(ok) => ok
-//        }
-//      }
-//    }
+    describe("Delete an edge") {
+      it("should remove an edge") {
+
+        val result = driver.deleteEdge(testDB, testEdgeCollection, createdEdgeKey)
+        val res = Await.result(result, 5 second)
+        res match {
+          case Left(err) => fail(err)
+          case Right(ok) => ok
+        }
+      }
+    }
+
+    describe("Delete an vertex") {
+      it("should remove a vertex") {
+        val result = driver.deleteVertex(testDB, testVertexCollection, createdVertexKey)
+        val res = Await.result(result, 5 second)
+        res match {
+          case Left(err) => fail(err)
+          case Right(ok) => ok
+        }
+      }
+    }
+
+    describe("Delete an edge collection") {
+      it("should remove an edge collection") {
+        val result = driver.deleteEdgeCollection(testDB, testEdgeCollection)
+        val res = Await.result(result, 5 second)
+        res match {
+          case Left(err) => fail(err)
+          case Right(ok) => ok
+        }
+      }
+    }
+
+    describe("Delete an vertex collection") {
+      it("should remove a vertex collection") {
+        val result = driver.deleteVertexCollection(testDB, testVertexCollection)
+        val res = Await.result(result, 5 second)
+        res match {
+          case Left(err) => fail(err)
+          case Right(ok) => ok
+        }
+      }
+    }
 
     describe("Drop Graph") {
       it("should drop the graph") {

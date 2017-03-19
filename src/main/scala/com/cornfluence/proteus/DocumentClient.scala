@@ -105,12 +105,12 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
     * @param documentID
     * @return
     */
-   def deleteDocument(dbName : String, collectionName : String, documentID : String): Future[Either[Throwable, String]] = Future {
+   def deleteDocument(dbName : String, collectionName : String, documentID : String): Future[Either[Throwable, Unit]] = Future {
      val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName/$documentID").method(DELETE)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
          if(ok.error.getOrElse(false)) Left(new Exception(errorMessage(ok.errorMessage)))
-         else Right("success")
+         else Right(())
        case Left(error) =>
          logger.error(error.getMessage)
          Left(error)
