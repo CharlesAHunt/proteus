@@ -1,7 +1,7 @@
 package proteus
 
-import com.cornfluence.proteus.models.User
-import com.cornfluence.proteus.DocumentClient
+import com.charlesahunt.proteus.DocumentClient
+import com.charlesahunt.proteus.models.User
 import org.scalatest.FunSpec
 import org.scalatest.Matchers._
 

@@ -1,14 +1,13 @@
-package com.cornfluence.proteus
+package com.charlesahunt.proteus
 
-import com.cornfluence.proteus.models._
+import com.charlesahunt.proteus.models._
 import com.typesafe.scalalogging.Logger
+import io.circe.generic.auto._
+import io.circe.parser.decode
+import io.circe.syntax._
+import scalaj.http._
 
 import scala.concurrent.Future
-import scalaj.http._
-import io.circe._
-import io.circe.generic.auto._
-import io.circe.parser.{decode, _}
-import io.circe.syntax._
 
 object GraphClient {
   def apply(name: String) = new GraphClient(databaseName = name)

@@ -1,8 +1,7 @@
-package com.cornfluence.proteus
+package com.charlesahunt.proteus
 
-import com.cornfluence.proteus.models.ResultMessage
+import com.charlesahunt.proteus.models.ResultMessage
 import com.typesafe.scalalogging.Logger
-
 import scalaj.http.HttpResponse
 import io.circe._
 import io.circe.generic.auto._

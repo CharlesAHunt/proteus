@@ -1,4 +1,4 @@
-package com.cornfluence.proteus.models
+package com.charlesahunt.proteus.models
 
 case class Result(
   name : String,

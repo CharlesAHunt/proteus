@@ -1,4 +1,4 @@
-package com.cornfluence.proteus
+package com.charlesahunt.proteus
 
 import com.typesafe.config.ConfigFactory
 

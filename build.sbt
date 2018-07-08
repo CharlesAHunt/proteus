@@ -2,13 +2,13 @@ import scala.io.Source
 
 name := "proteus"
 
-organization := "com.cornfluence"
+organization := "com.charlesahunt"
 
 description := "Scala driver for ArangoDB"
 
 version := Source.fromFile("./.version").getLines().toList.head
 
-scalaVersion := "2.12.1"
+scalaVersion := "2.12.6"
 
 publishMavenStyle := true
 
@@ -20,9 +20,9 @@ scalacOptions ++= Seq("-feature")
 
 credentials += Credentials(Path.userHome / ".sbt" / ".credentials")
 
-sonatypeProfileName := "com.cornfluence"
+sonatypeProfileName := "com.charlesahunt"
 
-useGpg := true
+useGpg := false
 
 publishTo := {
    val nexus = "https://oss.sonatype.org/"

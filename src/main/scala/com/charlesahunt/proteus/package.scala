@@ -1,6 +1,6 @@
-package com.cornfluence
+package com.charlesahunt
 
-import com.cornfluence.proteus.models.ResultMessage
+import com.charlesahunt.proteus.models.ResultMessage
 
 import scala.concurrent.ExecutionContextExecutorService
 

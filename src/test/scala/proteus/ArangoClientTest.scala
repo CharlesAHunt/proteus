@@ -1,7 +1,7 @@
 package proteus
 
-import com.cornfluence.proteus.ArangoClient
-import com.cornfluence.proteus.models.User
+import com.charlesahunt.proteus.ArangoClient
+import com.charlesahunt.proteus.models.User
 import org.scalatest.FunSpec
 import org.scalatest.Matchers._
 

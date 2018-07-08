@@ -1,14 +1,13 @@
-package com.cornfluence.proteus
+package com.charlesahunt.proteus
 
-import com.cornfluence.proteus.models.{CollectionName, ResultList, ResultMessage}
+import com.charlesahunt.proteus.models.{CollectionName, ResultList, ResultMessage}
 import com.typesafe.scalalogging.Logger
+import io.circe.generic.auto._
+import io.circe.parser.decode
+import io.circe.syntax._
+import scalaj.http._
 
 import scala.concurrent.Future
-import scalaj.http._
-import io.circe._
-import io.circe.generic.auto._
-import io.circe.parser.{decode, _}
-import io.circe.syntax._
 
 object DocumentClient {
    def apply(name : String) = new DocumentClient(databaseName = name)

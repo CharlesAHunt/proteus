@@ -1,20 +1,21 @@
-package com.cornfluence.proteus
+package com.charlesahunt.proteus
 
-import com.cornfluence.proteus.models._
+import com.charlesahunt.proteus.models._
 import com.typesafe.scalalogging.Logger
+import io.circe.generic.auto._
+import io.circe.parser.decode
+import io.circe.syntax._
+import scalaj.http._
 
 import scala.concurrent.Future
-import scalaj.http._
-import io.circe._
-import io.circe.generic.auto._
-import io.circe.parser.{decode, _}
-import io.circe.syntax._
 
 object ArangoClient {
-  def apply(name: String) = new ArangoClient(databaseName = name)
 
-  def apply(host: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String) =
+  def apply(name: String): ArangoClient = new ArangoClient(databaseName = name)
+
+  def apply(host: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String): ArangoClient  =
     new ArangoClient(host, port, https, databaseName)
+
 }
 
 /**
