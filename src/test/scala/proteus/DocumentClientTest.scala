@@ -14,13 +14,17 @@ class DocumentClientTest extends FunSpec {
   val testDB = "testDocumentClient"
   val testCollection = "testDocumentClientCollection"
   var testDocID = ""
+  var testDocID2 = ""
+  var testDocID3 = ""
+  var cursorID = ""
   val driver = DocumentClient(name = testDB)
 
   describe("==============\n| Document Client Test |\n==============") {
 
     describe("Create Database") {
       it("should create new Database") {
-        val result = driver.createDatabase(testDB, Some(List(User("charles", "password"))))
+        val result =
+          driver.createDatabase(testDB, Some(List(User("charles", "password"))))
         Await.result(result, 5.seconds) match {
           case Left(err) => fail(err.getMessage)
           case Right(ok) => ok
@@ -43,10 +47,50 @@ class DocumentClientTest extends FunSpec {
 
     describe("Create Document") {
       it("should create document in test collection") {
-        val result = driver.createDocument(testDB, testCollection, """{ "Hello": "World" }""")
+        val result = driver.createDocument(
+          testDB,
+          testCollection,
+          """{ "title": "developer", "company":"Test", "email":"test@gmail.com" }"""
+        )
 
         val res = Await.result(result, 5 second)
         testDocID = res.right.get
+
+        res match {
+          case Left(err) => fail(err)
+          case Right(ok) => ok.toLong should be > 0L
+        }
+      }
+    }
+
+    describe("Create second Document") {
+      it("should create another document in test collection") {
+        val result = driver.createDocument(
+          testDB,
+          testCollection,
+          """{ "title": "developer", "company":"Test", "email":"abc@gmail.com" }"""
+        )
+
+        val res = Await.result(result, 5 second)
+        testDocID2 = res.right.get
+
+        res match {
+          case Left(err) => fail(err)
+          case Right(ok) => ok.toLong should be > 0L
+        }
+      }
+    }
+
+    describe("Create a third Document") {
+      it("should create 3rd document in test collection") {
+        val result = driver.createDocument(
+          testDB,
+          testCollection,
+          """{ "title": "developer", "company":"Test", "email":"xyz@gmail.com" }"""
+        )
+
+        val res = Await.result(result, 5 second)
+        testDocID3 = res.right.get
 
         res match {
           case Left(err) => fail(err)
@@ -61,10 +105,62 @@ class DocumentClientTest extends FunSpec {
         val res = Await.result(result, 5 second)
         res match {
           case Left(err) => fail(err)
-          case Right(ok) => ok.head should include(s"/_api/document/$testCollection/")
+          case Right(ok) =>
+            println(res)
+            ok.head should include(s"/_api/document/$testCollection/")
         }
       }
     }
+    describe("Retrieve one or more document(s) via AQL") {
+      it("should retrieve 2 documents from the test collection using AQL") {
+        val query = s"""FOR u IN $testCollection LIMIT 99 RETURN u"""
+        val q = com.charlesahunt.proteus.models
+          .Query(query = query, count = true, batchSize = 2)
+        val result = driver.getQueryResult(testDB, testCollection, q)
+        //implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
+        val res = Await.result(result, 5 second)
+        res match {
+          case Left(err) => fail(err)
+          case Right(ok) =>
+            ok.toString should include(
+              s"""{"_key":"$testDocID","_id":"$testCollection/$testDocID"""
+            )
+            val userS =
+              """"email":"test@gmail.com""""
+            ok.toString should include(userS)
+            ok.toString should include(
+              s"""{"_key":"$testDocID2","_id":"$testCollection/$testDocID2"""
+            )
+            val userS2 =
+              """"email":"abc@gmail.com""""
+            ok.toString should include(userS2)
+            cursorID = com.charlesahunt.proteus.utils.Utils
+              .getCursorID(res)
+              .getOrElse("")
+            cursorID.size should be > 0
+        }
+      }
+    }
+
+    describe("Retrieve final document via cursor ID") {
+      it("should retrieve last document from the test collection") {
+        val result =
+          driver.getQueryPendingResult(testDB, testCollection, cursorID)
+        val res = Await.result(result, 5 second)
+        res match {
+          case Left(err) => fail(err)
+          case Right(ok) =>
+            ok.toString should include(
+              s"""{"_key":"$testDocID3","_id":"$testCollection/$testDocID3"""
+            )
+
+            val userS =
+              """"email":"xyz@gmail.com""""
+            ok.toString should include(userS)
+        }
+      }
+    }
+
     describe("Retrieve one document by handle") {
       it("should retrieve one document from the test collection") {
         val result = driver.getDocument(testDB, testCollection, testDocID)
@@ -72,14 +168,25 @@ class DocumentClientTest extends FunSpec {
         res match {
           case Left(err) => fail(err)
           case Right(ok) =>
-            ok.toString should include(s"""{"_key":"$testDocID","_id":"$testCollection/$testDocID""")
-            ok.toString should include("""Hello":"World"}""")
+            ok.toString should include(
+              s"""{"_key":"$testDocID","_id":"$testCollection/$testDocID"""
+            )
+            val userS =
+              """"email":"test@gmail.com""""
+            ok.toString should include(userS)
         }
       }
     }
     describe("Replace one document by handle") {
       it("should replace one document from the test collection") {
-        val result = driver.replaceDocument(testDB, testCollection, testDocID,"""{ "Hello": "Arango" }""")
+        val userS =
+          """{ "title": "developer", "company":"Test", "email":"test@test.com" }"""
+        val result = driver.replaceDocument(
+          testDB,
+          testCollection,
+          testDocID,
+          userS
+        )
         val res = Await.result(result, 5 second)
         res match {
           case Left(err) => fail(err)
@@ -94,8 +201,11 @@ class DocumentClientTest extends FunSpec {
         res match {
           case Left(err) => fail(err)
           case Right(ok) =>
-            ok.toString should include(s"""{"_key":"$testDocID","_id":"$testCollection/$testDocID""")
-            ok.toString should include("""Hello":"Arango"}""")
+            ok.toString should include(
+              s"""{"_key":"$testDocID","_id":"$testCollection/$testDocID"""
+            )
+            val userS = """"email":"test@test.com""""
+            ok.toString should include(userS)
         }
       }
     }
@@ -133,4 +243,3 @@ class DocumentClientTest extends FunSpec {
     }
   }
 }
-
