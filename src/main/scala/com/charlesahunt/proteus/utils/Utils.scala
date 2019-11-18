@@ -14,16 +14,16 @@ object Utils {
   ): Option[String] = {
     queryResultViaCursor match {
       case Left(value) =>
-        println(value)
+        //println(value)
         None
       case Right(value) =>
-        println(value)
+        //println(value)
         decode[CursorResults](value) match {
           case Right(ok) =>
-            println(ok)
+            //println(ok)
             if (ok.hasMore.getOrElse(false)) ok.id else None
           case Left(error) =>
-            println(error.getMessage)
+            //println(error.getMessage)
             None
         }
     }
