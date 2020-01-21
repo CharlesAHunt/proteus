@@ -1,6 +1,6 @@
 package proteus
 
-import com.charlesahunt.proteus.GraphClient
+import com.charlesahunt.proteus.client.GraphClient
 import org.scalatest.FunSpec
 import org.scalatest.Matchers._
 import org.scalatest.Matchers._

@@ -1,6 +1,6 @@
 package proteus
 
-import com.charlesahunt.proteus.DocumentClient
+import com.charlesahunt.proteus.client.DocumentClient
 import com.charlesahunt.proteus.models.User
 import org.scalatest.FunSpec
 import org.scalatest.Matchers._

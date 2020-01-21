@@ -1,32 +1,27 @@
-package com.charlesahunt.proteus
+package com.charlesahunt.proteus.client
 
+import cats.effect.Sync
 import com.charlesahunt.proteus.models.{CollectionName, ResultList, ResultMessage}
+import com.charlesahunt.proteus.{DELETE, api, db, error, errorMessage, isError}
 import com.typesafe.scalalogging.Logger
 import io.circe.generic.auto._
 import io.circe.parser.decode
 import io.circe.syntax._
 import scalaj.http._
 
-import scala.concurrent.Future
-
-object DocumentClient {
-   def apply(name : String) = new DocumentClient(databaseName = name)
-   def apply(host: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String) =
-      new DocumentClient(host, port, https, databaseName)
-}
-
 /**
   * Manages Document API operations
   *
   * @param host
   * @param port
-  * @param https
+  * @param TLS
   * @param databaseName
   */
-class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String)
-  extends ArangoClient(host, port, https, databaseName) with Auth {
+class DocumentClient[F[_]](val host: String = "localhost", val port: Int = 8529, val TLS: Boolean = false, val databaseName: String)
+                          (implicit val sync: Sync[F])
+  extends ArangoClient[F] {
 
-  private val logger = Logger[DocumentClient]
+  private val logger = Logger[DocumentClient[F]]
 
   /**
     * Creates a new document in the collection named collection
@@ -39,8 +34,8 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
    def createDocument(
      dbName : String,
      collectionName: String,
-     documentString : String): Future[Either[Throwable, String]] = Future {
-     val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName").postData(documentString)).asString
+     documentString : String): F[Either[Throwable, String]] = sync.delay {
+     val response = postAuth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName").postData(documentString)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
          if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -61,8 +56,8 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
     * @return document key
     */
    def replaceDocument(dbName : String, collectionName: String, documentID : String, documentString : String)
-   : Future[Either[Throwable, String]] = Future {
-     val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName/$documentID").put(documentString)).asString
+   : F[Either[Throwable, String]] = sync.delay {
+     val response = postAuth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName/$documentID").put(documentString)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
          if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -80,9 +75,9 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
     * @param collectionName
     * @return
     */
-   def getAllDocuments(dbName : String, collectionName : String): Future[Either[Throwable, List[String]]] = Future {
+   def getAllDocuments(dbName : String, collectionName : String): F[Either[Throwable, List[String]]] = sync.delay {
      val collection = CollectionName(collectionName)
-     val response = auth(Http(s"$arangoHost/$db/$dbName/$api/simple/all-keys")).put(collection.asJson.noSpaces).asString
+     val response = postAuth(Http(s"$arangoHost/$db/$dbName/$api/simple/all-keys")).put(collection.asJson.noSpaces).asString
      decode[ResultList](response.body) match {
        case Right(ok) => Right(ok.result)
        case Left(error) =>
@@ -99,8 +94,8 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
     * @param documentID
     * @return document JSON body
     */
-   def getDocument(dbName : String, collectionName : String, documentID : String): Future[Either[Throwable, String]] = Future {
-     val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName/$documentID")).asString
+   def getDocument(dbName : String, collectionName : String, documentID : String): F[Either[Throwable, String]] = sync.delay {
+     val response = postAuth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName/$documentID")).asString
      Right(response.body)
    }
 
@@ -112,8 +107,8 @@ class DocumentClient(host: String = "localhost", port: Int = 8529, https: Boolea
     * @param documentID
     * @return
     */
-   def deleteDocument(dbName : String, collectionName : String, documentID : String): Future[Either[Throwable, Unit]] = Future {
-     val response = auth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName/$documentID").method(DELETE)).asString
+   def deleteDocument(dbName : String, collectionName : String, documentID : String): F[Either[Throwable, Unit]] = sync.delay {
+     val response = postAuth(Http(s"$arangoHost/$db/$dbName/$api/document/$collectionName/$documentID").method(DELETE)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
          if(isError(ok)) error(errorMessage(ok.errorMessage))

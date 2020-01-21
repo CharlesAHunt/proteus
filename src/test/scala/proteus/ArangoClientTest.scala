@@ -1,6 +1,6 @@
 package proteus
 
-import com.charlesahunt.proteus.ArangoClient
+import com.charlesahunt.proteus.client.ArangoClient
 import com.charlesahunt.proteus.models.User
 import org.scalatest.FunSpec
 import org.scalatest.Matchers._

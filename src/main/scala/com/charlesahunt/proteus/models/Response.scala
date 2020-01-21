@@ -1,13 +1,13 @@
 package com.charlesahunt.proteus.models
 
-case class Result(
+final case class Result(
   name : String,
   id : String,
   path : String,
   isSystem : Boolean
 )
 
-case class ResultMessage(
+final case class ResultMessage(
   error: Option[Boolean],
   errorMessage: Option[String] = None,
   result: Option[Boolean] = None,
@@ -22,20 +22,20 @@ case class ResultMessage(
   _oldRev : Option[String] = None
 )
 
-case class EdgeOrVertex(
+final case class EdgeOrVertex(
   _id: String,
   _rev: String,
   _key: String
 )
 
-case class Edges(
+final case class Edges(
   edges: List[Edge],
   error : Boolean,
   code : Int,
   stats : Stats
 )
 
-case class ResultList(
+final case class ResultList(
   result: List[String],
   error: Boolean,
   code: Int,
@@ -44,12 +44,12 @@ case class ResultList(
   extra: Option[Extra]
 )
 
-case class Extra(
+final case class Extra(
   stats: Stats,
    warnings:Option[List[String]]
   )
 
-case class Stats(
+final case class Stats(
   writesExecuted:Long,
   writesIgnored:Long,
   scannedFull:Long,
@@ -57,17 +57,17 @@ case class Stats(
   filtered:Long
 )
 
-case class CurrentDatabase(
+final case class CurrentDatabase(
   result : Result,
   error : Boolean,
   code : Int
 )
 
-case class Error(
+final case class Error(
   message: String
 )
 
-case class CollectionResponse(
+final case class CollectionResponse(
   id : String,
   error : Boolean,
   code : Int,
@@ -81,7 +81,7 @@ case class CollectionResponse(
   errorMessage: Option[String]
 )
 
-case class GraphResponse(
+final case class GraphResponse(
   name: String,
   edgeDefinitions: List[EdgeDefinition],
   orphanCollections: List[String],
@@ -92,7 +92,7 @@ case class GraphResponse(
   _rev: String
 )
 
-case class DropGraphResponse(
+final case class DropGraphResponse(
   error:Boolean,
   removed:Boolean,
   code:Int

@@ -1,33 +1,28 @@
-package com.charlesahunt.proteus
+package com.charlesahunt.proteus.client
 
+import cats.effect.Sync
 import com.charlesahunt.proteus.models._
+import com.charlesahunt.proteus.{DELETE, api, error, errorMessage, gharial, isError}
 import com.typesafe.scalalogging.Logger
 import io.circe.generic.auto._
 import io.circe.parser.decode
 import io.circe.syntax._
 import scalaj.http._
 
-import scala.concurrent.Future
-
-object GraphClient {
-  def apply(name: String) = new GraphClient(databaseName = name)
-
-  def apply(hostMachine: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String) =
-    new GraphClient(hostMachine, port, https, databaseName)
-}
 
 /**
   * Manages Graph API operations
   *
-  * @param hostMachine
+  * @param host
   * @param port
-  * @param https
+  * @param TLS
   * @param databaseName
   */
-class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Boolean = false, databaseName: String)
-  extends ArangoClient(hostMachine, port, https, databaseName) with Auth {
+class GraphClient[F[_]](val host: String = "localhost", val port: Int = 8529, val TLS: Boolean = false, val databaseName: String)
+                       (implicit val sync: Sync[F])
+  extends ArangoClient[F] {
 
-  private val logger = Logger[DocumentClient]
+  private val logger = Logger[GraphClient[F]]
 
   /**
     * Create the Graph
@@ -38,8 +33,8 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     */
   def createGraph(
     graphName: String,
-    edges: List[EdgeDefinition]): Future[Either[Throwable, GraphResponse]] = Future {
-    val response = auth(Http(s"$arangoHost/$api/$gharial").postData(Graph(graphName, edges).asJson.noSpaces)).asString
+    edges: List[EdgeDefinition]): F[Either[Throwable, GraphResponse]] = sync.delay {
+    val response = postAuth(Http(s"$arangoHost/$api/$gharial")).postData(Graph(graphName, edges).asJson.noSpaces).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(s"Error creating graph with code ${ok.code}")
@@ -56,8 +51,8 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     * @param graphName
     * @return
     */
-  def dropGraph(graphName: String): Future[Either[Throwable, Boolean]] = Future {
-    val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName").method(DELETE)).asString
+  def dropGraph(graphName: String): F[Either[Throwable, Boolean]] = sync.delay {
+    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName").method(DELETE)).asString
     decode[DropGraphResponse](response.body) match {
       case Right(ok) =>
         if(ok.error) error(s"Error dropping graph with code ${ok.code}")
@@ -78,9 +73,9 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
   def createVertexCollection(
     graphName: String,
     collectionName: String
-  ): Future[Either[Throwable, GraphResponse]] = Future {
+  ): F[Either[Throwable, GraphResponse]] = sync.delay {
     val collection = CollectionName(collectionName)
-    val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex").postData(collection.asJson.noSpaces)).asString
+    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex").postData(collection.asJson.noSpaces)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -104,8 +99,8 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     graphName: String,
     vertexCollection: String,
     json: String
-  ): Future[Either[Throwable, EdgeOrVertex]] = Future {
-    val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$vertexCollection").postData(json)).asString
+  ): F[Either[Throwable, EdgeOrVertex]] = sync.delay {
+    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$vertexCollection").postData(json)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -128,9 +123,9 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     graphName: String,
     collectionName: String,
     from: List[String],
-    to: List[String]): Future[Either[Throwable, List[EdgeDefinition]]] = Future {
+    to: List[String]): F[Either[Throwable, List[EdgeDefinition]]] = sync.delay {
     val edge = EdgeDefinition(collectionName, from, to).asJson.noSpaces
-    val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/").postData(edge)).asString
+    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/").postData(edge)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -157,9 +152,9 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     collectionName: String,
     edgeType: String,
     from: String,
-    to: String): Future[Either[Throwable, EdgeOrVertex]] = Future {
+    to: String): F[Either[Throwable, EdgeOrVertex]] = sync.delay {
     val edge = Edge(edgeType, from, to).asJson.noSpaces
-    val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName").postData(edge)).asString
+    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName").postData(edge)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -178,8 +173,8 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     * @param edgeKey
     * @return
     */
-  def deleteEdge(graphName: String, collectionName: String, edgeKey: String): Future[Either[Throwable, Unit]] = Future {
-    val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName/$edgeKey").method(DELETE)).asString
+  def deleteEdge(graphName: String, collectionName: String, edgeKey: String): F[Either[Throwable, Unit]] = sync.delay {
+    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName/$edgeKey").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -198,8 +193,8 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     * @param vertexKey
     * @return
     */
-  def deleteVertex(graphName: String, collectionName: String, vertexKey: String): Future[Either[Throwable, Unit]] = Future {
-    val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$collectionName/$vertexKey").method(DELETE)).asString
+  def deleteVertex(graphName: String, collectionName: String, vertexKey: String): F[Either[Throwable, Unit]] = sync.delay {
+    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$collectionName/$vertexKey").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -218,8 +213,8 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     * @param collectionName
     * @return
     */
-  def deleteEdgeCollection(graphName: String, collectionName: String): Future[Either[Throwable, Unit]] = Future {
-    val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName").method(DELETE)).asString
+  def deleteEdgeCollection(graphName: String, collectionName: String): F[Either[Throwable, Unit]] = sync.delay {
+    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -237,8 +232,8 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
     * @param collectionName
     * @return
     */
-  def deleteVertexCollection(graphName: String, collectionName: String): Future[Either[Throwable, Unit]] = Future {
-    val response = auth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$collectionName").method(DELETE)).asString
+  def deleteVertexCollection(graphName: String, collectionName: String): F[Either[Throwable, Unit]] = sync.delay {
+    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$collectionName").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -251,6 +246,4 @@ class GraphClient(hostMachine: String = "localhost", port: Int = 8529, https: Bo
 
   //TODO modify edge, replace edge, and same for collection of edges
   //TODO modify vertex, replace vertex, and same for collection of vertices
-
-
 }

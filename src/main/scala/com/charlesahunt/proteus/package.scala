@@ -6,15 +6,15 @@ import scala.concurrent.ExecutionContextExecutorService
 
 package object proteus {
 
-  val api = "_api"
-  val db = "_db"
-  val gharial = "gharial"
+  val api: String = "_api"
+  val db: String = "_db"
+  val gharial: String = "gharial"
 
-  val DELETE = "DELETE"
+  val DELETE: String = "DELETE"
 
   def errorMessage(message: Option[String]): String = message.getOrElse("")
 
-  def error(message: String) = Left(new Exception(message))
+  def error[R](message: String): Left[Exception, R] = Left(new Exception(message))
 
   def isError(result: ResultMessage): Boolean = result.error.getOrElse(false)
 

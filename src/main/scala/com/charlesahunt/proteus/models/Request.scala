@@ -1,25 +1,25 @@
 package com.charlesahunt.proteus.models
 
-case class Edge(
+final case class Edge(
   `type` : String,
   _from: String,
   _to: String
 )
 
-case class Database(
+final case class Database(
   name: String,
   users: Option[List[User]]
 )
 
-case class Documents(
+final case class Documents(
   documents: List[String]
 )
 
-case class CollectionName(
+final case class CollectionName(
   collection: String
 )
 
-case class User(
+final case class User(
   username: String,
   password: String,
   active: Boolean = true,
@@ -27,16 +27,16 @@ case class User(
 )
 
 //TODO: more attributes here
-case class Collection(
+final case class Collection(
   name: String
 )
 
-case class Graph(
+final case class Graph(
   name : String,
   edgeDefinitions : List[EdgeDefinition]
 )
 
-case class EdgeDefinition(
+final case class EdgeDefinition(
   collection : String,
   from : List[String],
   to : List[String]
