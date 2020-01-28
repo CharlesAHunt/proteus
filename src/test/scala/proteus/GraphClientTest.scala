@@ -1,16 +1,13 @@
 package proteus
 
+import cats.effect.IO
 import com.charlesahunt.proteus.client.GraphClient
-import org.scalatest.FunSpec
-import org.scalatest.Matchers._
-import org.scalatest.Matchers._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers._
 
-import scala.concurrent.{Await, ExecutionContext}
-import ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class GraphClientTest extends FunSpec {
+class GraphClientTest extends AnyFunSpec {
 
   val testDB = "testGraph"
   val testEdgeCollection = "testEdgeCollection"
@@ -19,14 +16,14 @@ class GraphClientTest extends FunSpec {
   var createdEdgeKey = ""
   var createdVertexKey = ""
 
-  val driver = new GraphClient(databaseName = testDB)
+  val driver = new GraphClient[IO](testConfig, testDB)
 
   describe("==============\n| Graph Client Test |\n==============") {
 
     describe("Create Graph") {
       it("should create a graph") {
-        val result = Await.result(driver.createGraph(testDB, List()), 5 second)
-        result match {
+        val result = driver.createGraph(List())
+        result.unsafeRunSync() match {
           case Left(err) => fail(err)
           case Right(ok) => ok
         }
@@ -35,8 +32,8 @@ class GraphClientTest extends FunSpec {
 
     describe("Create Vertex Collection") {
       it("should create vertex collection") {
-        val result = Await.result(driver.createVertexCollection(testDB, testVertexCollection), 5 second)
-        result match {
+        val result = driver.createVertexCollection(testVertexCollection)
+        result.unsafeRunSync() match {
           case Left(err) => fail(err)
           case Right(ok) => ok
         }
@@ -45,8 +42,8 @@ class GraphClientTest extends FunSpec {
 
     describe("Create Vertex") {
       it("should create vertex in vertex collection") {
-        val result = Await.result(driver.createVertex(testDB, testVertexCollection, """{"test":"test"}"""), 5 second)
-        result match {
+        val result = driver.createVertex(testVertexCollection, """{"test":"test"}""")
+        result.unsafeRunSync() match {
           case Left(err) => fail(err)
           case Right(ok) => ok
         }
@@ -55,13 +52,11 @@ class GraphClientTest extends FunSpec {
 
     describe("Create Edge collection") {
       it("should create edge collection") {
-        Await.result(driver.createVertex(testDB, testVertexCollection, """{ "Hello": "World" }"""), 5 second)
-        Await.result(driver.createVertex(testDB, testVertexCollection2, """{ "Hello": "World" }"""), 5 second)
+        driver.createVertex(testVertexCollection, """{ "Hello": "World" }""")
+        driver.createVertex(testVertexCollection2, """{ "Hello": "World" }""")
 
         val result = driver.createEdgeCollection(testDB, testEdgeCollection, List(testVertexCollection), List(testVertexCollection2))
-        val res = Await.result(result, 5 second)
-
-        res match {
+        result.unsafeRunSync() match {
           case Left(err) => fail(err)
           case Right(ok) => ok.head.collection shouldEqual testEdgeCollection
         }
@@ -70,15 +65,14 @@ class GraphClientTest extends FunSpec {
 
     describe("Create an edge in the edge collection") {
       it("should create edge definition") {
-        val vert = Await.result(driver.createVertex(testDB, testVertexCollection, """{ "Hello": "World" }"""), 5 second).toOption.get
-        val vert2 = Await.result(driver.createVertex(testDB, testVertexCollection2, """{ "Hello": "World" }"""), 5 second).toOption.get
+        val vert = driver.createVertex(testVertexCollection, """{ "Hello": "World" }""")
+        val vert2 = driver.createVertex(testVertexCollection2, """{ "Hello": "World" }""")
 
         createdVertexKey = vert._key
 
-        val result = driver.createEdge(testDB, testEdgeCollection, "test", vert._id, vert2._id)
-        val res = Await.result(result, 5 second)
+        val result = driver.createEdge(testEdgeCollection, "test", vert._id, vert2._id)
 
-        res match {
+        result.unsafeRunSync() match {
           case Left(err) => fail(err)
           case Right(edge) =>
             createdEdgeKey = edge._key
@@ -89,10 +83,8 @@ class GraphClientTest extends FunSpec {
 
     describe("Delete an edge") {
       it("should remove an edge") {
-
-        val result = driver.deleteEdge(testDB, testEdgeCollection, createdEdgeKey)
-        val res = Await.result(result, 5 second)
-        res match {
+        val result = driver.deleteEdge(testEdgeCollection, createdEdgeKey)
+        result.unsafeRunSync() match {
           case Left(err) => fail(err)
           case Right(ok) => ok
         }
@@ -101,9 +93,8 @@ class GraphClientTest extends FunSpec {
 
     describe("Delete an vertex") {
       it("should remove a vertex") {
-        val result = driver.deleteVertex(testDB, testVertexCollection, createdVertexKey)
-        val res = Await.result(result, 5 second)
-        res match {
+        val result = driver.deleteVertex(testVertexCollection, createdVertexKey)
+        result.unsafeRunSync() match {
           case Left(err) => fail(err)
           case Right(ok) => ok
         }
@@ -112,9 +103,8 @@ class GraphClientTest extends FunSpec {
 
     describe("Delete an edge collection") {
       it("should remove an edge collection") {
-        val result = driver.deleteEdgeCollection(testDB, testEdgeCollection)
-        val res = Await.result(result, 5 second)
-        res match {
+        val result = driver.deleteEdgeCollection(testEdgeCollection)
+        result.unsafeRunSync() match {
           case Left(err) => fail(err)
           case Right(ok) => ok
         }
@@ -123,9 +113,8 @@ class GraphClientTest extends FunSpec {
 
     describe("Delete an vertex collection") {
       it("should remove a vertex collection") {
-        val result = driver.deleteVertexCollection(testDB, testVertexCollection)
-        val res = Await.result(result, 5 second)
-        res match {
+        val result = driver.deleteVertexCollection(testVertexCollection)
+        result.unsafeRunSync() match {
           case Left(err) => fail(err)
           case Right(ok) => ok
         }
@@ -134,8 +123,8 @@ class GraphClientTest extends FunSpec {
 
     describe("Drop Graph") {
       it("should drop the graph") {
-        val result = Await.result(driver.dropGraph(testDB), 5 second)
-        result match {
+        val result = driver.dropGraph
+        result.unsafeRunSync() match {
           case Left(err) => fail(err)
           case Right(ok) => ok
         }

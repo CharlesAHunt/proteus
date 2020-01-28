@@ -14,6 +14,12 @@ trait Auth {
 
   private val logger = Logger("Auth")
 
+  /**
+    * Retrieves a JWT and attaches it to an HttpRequest
+    *
+    * @param request
+    * @return HttpRequest with JWT in the Authorization header as a bearer token
+    */
   def postAuth(request: HttpRequest): HttpRequest = {
     val authData = Auth(Config.configuration.user, Config.configuration.password)
     val token = {

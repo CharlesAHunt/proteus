@@ -6,7 +6,7 @@ organization := "com.charlesahunt"
 
 description := "Scala driver for ArangoDB"
 
-version := Source.fromFile("./.version").getLines().toList.head
+version := Source.fromFile("./.version").getLines.toList.head
 
 scalaVersion := "2.13.1"
 
@@ -52,7 +52,7 @@ licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"
 parallelExecution in Test := false
 
 resolvers ++= Seq(
-  "OSS"  at "http://oss.sonatype.org/content/repositories/releases"
+  "OSS"  at "https://oss.sonatype.org/content/repositories/releases"
 )
 
 shellPrompt := { state => scala.Console.YELLOW + "[" + scala.Console.CYAN + Project.extract(state).currentProject.id + scala.Console.YELLOW + "]" + scala.Console.RED + " $ " + scala.Console.RESET }

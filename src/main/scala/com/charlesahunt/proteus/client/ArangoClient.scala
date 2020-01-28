@@ -1,6 +1,7 @@
 package com.charlesahunt.proteus.client
 
 import cats.effect.Sync
+import com.charlesahunt.proteus.config.ProteusConfig
 import com.charlesahunt.proteus.models._
 import com.charlesahunt.proteus.{Auth, DELETE, api, db, error, errorMessage, isError}
 import com.typesafe.scalalogging.Logger
@@ -9,26 +10,15 @@ import io.circe.parser.decode
 import io.circe.syntax._
 import scalaj.http._
 
-trait ArangoClient[F[_]] extends Auth {
+class ArangoClient[F[_]](config: ProteusConfig)(implicit val sync: Sync[F]) extends Auth {
 
-  def host: String
-  def port: Int
-  def TLS: Boolean
-  def databaseName: String
-
-  implicit def sync: Sync[F]
+  val hostPort: String = s"${config.host}:${config.port}"
 
   private val logger = Logger[ArangoClient[F]]
-  protected implicit val arangoHost: String = if (TLS) s"https://$host:$port" else s"http://$host:$port"
+  protected implicit val arangoHost: String = if(config.tls.getOrElse(false)) s"https://$hostPort" else s"http://$hostPort"
   private val database = "database"
   type JWT = String
   type DatabaseName = String
-
-
-  def apply(name: String): ArangoClient[F] = new GraphClient[F](databaseName = name)
-
-  def apply(hostMachine: String = "localhost", port: Int = 8529, TLS: Boolean = false, databaseName: String): ArangoClient[F] =
-    new GraphClient[F](hostMachine, port, TLS, databaseName)
 
   def getCurrentDatabase: F[Either[Throwable, CurrentDatabase]] = sync.delay {
     val response: HttpResponse[String] = postAuth(Http(s"$arangoHost/$api/$database/current")).asString

@@ -1,5 +1,6 @@
 package com.charlesahunt.proteus.config
 
+import cats.implicits._
 import com.typesafe.scalalogging.Logger
 import pureconfig._
 import pureconfig.generic.auto._
@@ -23,7 +24,10 @@ object Config {
 }
 
 final case class ProteusConfig(
-  host: String,
   user: String,
-  password: String
+  password: String,
+  dataBaseName: String,
+  host: Option[String] = "localhost".some,
+  port: Option[Int] = 8529.some,
+  tls: Option[Boolean] = false.some
 )

@@ -7,6 +7,8 @@ ArangoDB driver for Scala.
 The word 'Proteus' comes the adjective protean, with the general meaning of "versatile", "mutable", "capable of assuming many forms". "Protean" has positive connotations of flexibility, versatility and adaptability. 
 The name Proteus is a nod to the versatile and many-formed nature of ArangoDB.
 
+This driver is compatible with ArangoDB `v3.6.x`
+
 ## Getting Started
 
 You may need to add the Sonatype nexus to your resolvers:
@@ -16,10 +18,10 @@ You may need to add the Sonatype nexus to your resolvers:
 
 sbt:
 ```
-libraryDependencies += "com.cornfluence" % "proteus_2.12" % "0.6.7"
+libraryDependencies += "com.cornfluence" % "proteus_2.13" % "0.7.2"
 ```
 
-maven:   
+maven:
 ```
 <dependency>
   <groupId>com.cornfluence</groupId>
@@ -31,13 +33,19 @@ maven:
 
 Note: Versions of Proteus less than 0.6.0 are for ArangoDB 2.x and built with Scala 2.11
 
+Note: Versions of Proteus greater than 0.6.0 and less than 0.7.0 are for ArangoDB 3.x and built with Scala 2.12
+
+Note: Versions of Proteus greater than 0.7.0 are for ArangoDB 3.6.+ and built with Scala 2.13
+
+
 ## Configuration
 
 To configure your application's ArangoDB user, you will need to add the following to your application.conf
 ```
  proteus {
-   user = "username"       //arangodb default is:  "root"
-   password = "password"   //arangodb default is:  ""
+    host = "localhost"
+    user = "username"       //arangodb default is:  "root"
+    password = "password"   //arangodb default is:  ""
  }
 ```
 

@@ -1,28 +1,23 @@
 package proteus
 
+import cats.effect.IO
 import com.charlesahunt.proteus.client.ArangoClient
 import com.charlesahunt.proteus.models.User
-import org.scalatest.FunSpec
-import org.scalatest.Matchers._
+import org.scalatest.funspec.AnyFunSpec
 
-import scala.concurrent.{Await, ExecutionContext}
-import ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class ArangoClientTest extends FunSpec {
+class ArangoClientTest extends AnyFunSpec {
 
   val testDB = "testDocumentClient"
-  val driver = new ArangoClient(databaseName = testDB)
-
+  val driver = new ArangoClient[IO](testConfig)
 
   describe("==============\n| Arango Client Test |\n==============") {
 
     describe("Create Database") {
       it("should create new Database") {
         val result = driver.createDatabase(testDB, Some(List(User("user", "password"))))
-        val res = Await.result(result, 5 second)
-        res match {
+        result.unsafeRunSync() match {
           case Left(err) => fail(err.getMessage)
           case Right(ok) => ok
         }
@@ -32,7 +27,7 @@ class ArangoClientTest extends FunSpec {
     describe("Get Databases") {
       it("should properly retrieve all databases") {
         val result = driver.getDatabaseList
-        Await.result(result, 5.seconds) match {
+        result.unsafeRunSync() match {
           case Left(err) => fail(err.getMessage)
           case Right(ok) => assert(ok.nonEmpty)
         }
@@ -42,7 +37,7 @@ class ArangoClientTest extends FunSpec {
     describe("Get current database") {
       it("should properly retrieve the current database") {
         val result = driver.getCurrentDatabase
-        Await.result(result, 5.seconds) match {
+        result.unsafeRunSync() match {
           case Left(err) => fail(err.getMessage)
           case Right(ok) => assert(ok.result.name.nonEmpty)
         }
@@ -52,8 +47,7 @@ class ArangoClientTest extends FunSpec {
     describe("Delete Database") {
       it("should delete the Database") {
         val result = driver.deleteDatabase(testDB)
-        val res = Await.result(result, 5 second)
-        res match {
+        result.unsafeRunSync() match {
           case Left(err) => fail(err.getMessage)
           case Right(ok) => ok
         }
