@@ -5,8 +5,6 @@ import com.charlesahunt.proteus.client.GraphClient
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers._
 
-import scala.language.postfixOps
-
 class GraphClientTest extends AnyFunSpec {
 
   val testDB = "testGraph"
@@ -55,7 +53,7 @@ class GraphClientTest extends AnyFunSpec {
         driver.createVertex(testVertexCollection, """{ "Hello": "World" }""")
         driver.createVertex(testVertexCollection2, """{ "Hello": "World" }""")
 
-        val result = driver.createEdgeCollection(testDB, testEdgeCollection, List(testVertexCollection), List(testVertexCollection2))
+        val result = driver.createEdgeCollection(testEdgeCollection, List(testVertexCollection), List(testVertexCollection2))
         result.unsafeRunSync() match {
           case Left(err) => fail(err)
           case Right(ok) => ok.head.collection shouldEqual testEdgeCollection
@@ -65,12 +63,21 @@ class GraphClientTest extends AnyFunSpec {
 
     describe("Create an edge in the edge collection") {
       it("should create edge definition") {
-        val vert = driver.createVertex(testVertexCollection, """{ "Hello": "World" }""")
-        val vert2 = driver.createVertex(testVertexCollection2, """{ "Hello": "World" }""")
+        val vert1 = driver.createVertex(testVertexCollection, """{ "Hello": "World" }""").unsafeRunSync()
+        val vert2 = driver.createVertex(testVertexCollection2, """{ "Hello": "World" }""").unsafeRunSync()
 
-        createdVertexKey = vert._key
+        val vert1Edge = vert1 match {
+          case Left(err) => fail(err)
+          case Right(edge) => edge
+        }
 
-        val result = driver.createEdge(testEdgeCollection, "test", vert._id, vert2._id)
+        val vert2Edge = vert2 match {
+          case Left(err) => fail(err)
+          case Right(edge) => edge
+        }
+
+        createdVertexKey = vert1Edge._key
+        val result = driver.createEdge(testEdgeCollection, "test", vert1Edge._id, vert2Edge._id)
 
         result.unsafeRunSync() match {
           case Left(err) => fail(err)
@@ -78,6 +85,7 @@ class GraphClientTest extends AnyFunSpec {
             createdEdgeKey = edge._key
             edge._id.length should be > 0
         }
+
       }
     }
 

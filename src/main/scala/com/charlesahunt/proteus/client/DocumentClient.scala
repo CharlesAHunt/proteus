@@ -30,7 +30,7 @@ class DocumentClient[F[_]](val config: ProteusConfig, val databaseName: String)(
    def createDocument(
      collectionName: String,
      documentString : String): F[Either[Throwable, String]] = sync.delay {
-     val response = postAuth(Http(s"$arangoHost/$db/$databaseName/$api/document/$collectionName").postData(documentString)).asString
+     val response = withAuth(Http(s"$arangoHost/$db/$databaseName/$api/document/$collectionName").postData(documentString)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
          if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -51,7 +51,7 @@ class DocumentClient[F[_]](val config: ProteusConfig, val databaseName: String)(
     */
    def replaceDocument(collectionName: String, documentID : String, documentString : String)
    : F[Either[Throwable, String]] = sync.delay {
-     val response = postAuth(Http(s"$arangoHost/$db/$databaseName/$api/document/$collectionName/$documentID").put(documentString)).asString
+     val response = withAuth(Http(s"$arangoHost/$db/$databaseName/$api/document/$collectionName/$documentID").put(documentString)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
          if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -70,7 +70,7 @@ class DocumentClient[F[_]](val config: ProteusConfig, val databaseName: String)(
     */
    def getAllDocuments(collectionName : String): F[Either[Throwable, List[String]]] = sync.delay {
      val collection = CollectionName(collectionName)
-     val response = postAuth(Http(s"$arangoHost/$db/$databaseName/$api/simple/all-keys")).put(collection.asJson.noSpaces).asString
+     val response = withAuth(Http(s"$arangoHost/$db/$databaseName/$api/simple/all-keys")).put(collection.asJson.noSpaces).asString
      decode[ResultList](response.body) match {
        case Right(ok) => Right(ok.result)
        case Left(error) =>
@@ -87,7 +87,7 @@ class DocumentClient[F[_]](val config: ProteusConfig, val databaseName: String)(
     * @return document JSON body
     */
    def getDocument(collectionName : String, documentID : String): F[Either[Throwable, String]] = sync.delay {
-     val response = postAuth(Http(s"$arangoHost/$db/$databaseName/$api/document/$collectionName/$documentID")).asString
+     val response = withAuth(Http(s"$arangoHost/$db/$databaseName/$api/document/$collectionName/$documentID")).asString
      Right(response.body)
    }
 
@@ -99,7 +99,7 @@ class DocumentClient[F[_]](val config: ProteusConfig, val databaseName: String)(
     * @return
     */
    def deleteDocument(collectionName : String, documentID : String): F[Either[Throwable, Unit]] = sync.delay {
-     val response = postAuth(Http(s"$arangoHost/$db/$databaseName/$api/document/$collectionName/$documentID").method(DELETE)).asString
+     val response = withAuth(Http(s"$arangoHost/$db/$databaseName/$api/document/$collectionName/$documentID").method(DELETE)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
          if(isError(ok)) error(errorMessage(ok.errorMessage))

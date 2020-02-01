@@ -77,7 +77,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-parser"
 ).map(_ % circeVersion)
 
-wartremoverErrors ++= Warts.allBut(Wart.NonUnitStatements, Wart.StringPlusAny, Wart.DefaultArguments, Wart.Nothing, Wart.Overloading)
+wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.Nothing, Wart.DefaultArguments)
 
 import com.scalapenos.sbt.prompt.SbtPrompt.autoImport._
 
@@ -112,10 +112,10 @@ scalacOptions ++= Seq(
   "-Ywarn-dead-code", // Warn when dead code is identified.
   "-Ywarn-extra-implicit", // Warn when more than one implicit parameter section is defined.
   "-Ywarn-numeric-widen", // Warn when numerics are widened.
-  //"-Ywarn-unused:implicits", // Warn if an implicit parameter is unused.
-  //"-Ywarn-unused:imports", // Warn if an import selector is not referenced.
+  "-Ywarn-unused:implicits", // Warn if an implicit parameter is unused.
+  "-Ywarn-unused:imports", // Warn if an import selector is not referenced.
   "-Ywarn-unused:locals", // Warn if a local definition is unused.
-  //"-Ywarn-unused:params", // Warn if a value parameter is unused.
+  "-Ywarn-unused:params", // Warn if a value parameter is unused.
   "-Ywarn-unused:patvars", // Warn if a variable bound in a pattern is unused.
   "-Ywarn-unused:privates", // Warn if a private member is unused.
   "-Ywarn-value-discard", // Warn when non-Unit expression results are unused.

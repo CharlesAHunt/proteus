@@ -29,10 +29,10 @@ class GraphClient[F[_]](val config: ProteusConfig, val graphName: String)(implic
     */
   def createGraph(
     edges: List[EdgeDefinition]): F[Either[Throwable, GraphResponse]] = sync.delay {
-    val response = postAuth(Http(s"$arangoHost/$api/$gharial")).postData(Graph(graphName, edges).asJson.noSpaces).asString
+    val response = withAuth(Http(s"$arangoHost/$api/$gharial")).postData(Graph(graphName, edges).asJson.noSpaces).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
-        if(isError(ok)) error(s"Error creating graph with code ${ok.code}")
+        if(isError(ok)) error(s"Error creating graph with code {}}}")
         else ok.graph.toRight[Throwable](new Exception("Graph response missing"))
       case Left(error) =>
         logger.error("GraphClient.createGraph", error.getMessage)
@@ -46,10 +46,10 @@ class GraphClient[F[_]](val config: ProteusConfig, val graphName: String)(implic
     * @return
     */
   def dropGraph: F[Either[Throwable, Boolean]] = sync.delay {
-    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName").method(DELETE)).asString
+    val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName").method(DELETE)).asString
     decode[DropGraphResponse](response.body) match {
       case Right(ok) =>
-        if(ok.error) error(s"Error dropping graph with code ${ok.code}")
+        if(ok.error) error(s"Error dropping graph with code ${ok.code.toString}")
         else Right(ok.removed)
       case Left(error) =>
         logger.error("GraphClient.dropGraph", error.getMessage)
@@ -67,7 +67,7 @@ class GraphClient[F[_]](val config: ProteusConfig, val graphName: String)(implic
     collectionName: String
   ): F[Either[Throwable, GraphResponse]] = sync.delay {
     val collection = CollectionName(collectionName)
-    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex").postData(collection.asJson.noSpaces)).asString
+    val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex").postData(collection.asJson.noSpaces)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -90,7 +90,7 @@ class GraphClient[F[_]](val config: ProteusConfig, val graphName: String)(implic
     vertexCollection: String,
     json: String
   ): F[Either[Throwable, EdgeOrVertex]] = sync.delay {
-    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$vertexCollection").postData(json)).asString
+    val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$vertexCollection").postData(json)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -114,7 +114,7 @@ class GraphClient[F[_]](val config: ProteusConfig, val graphName: String)(implic
     from: List[String],
     to: List[String]): F[Either[Throwable, List[EdgeDefinition]]] = sync.delay {
     val edge = EdgeDefinition(collectionName, from, to).asJson.noSpaces
-    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/").postData(edge)).asString
+    val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/").postData(edge)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -142,7 +142,7 @@ class GraphClient[F[_]](val config: ProteusConfig, val graphName: String)(implic
     from: String,
     to: String): F[Either[Throwable, EdgeOrVertex]] = sync.delay {
     val edge = Edge(edgeType, from, to).asJson.noSpaces
-    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName").postData(edge)).asString
+    val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName").postData(edge)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -161,7 +161,7 @@ class GraphClient[F[_]](val config: ProteusConfig, val graphName: String)(implic
     * @return
     */
   def deleteEdge(collectionName: String, edgeKey: String): F[Either[Throwable, Unit]] = sync.delay {
-    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName/$edgeKey").method(DELETE)).asString
+    val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName/$edgeKey").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -180,7 +180,7 @@ class GraphClient[F[_]](val config: ProteusConfig, val graphName: String)(implic
     * @return
     */
   def deleteVertex(collectionName: String, vertexKey: String): F[Either[Throwable, Unit]] = sync.delay {
-    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$collectionName/$vertexKey").method(DELETE)).asString
+    val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$collectionName/$vertexKey").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -199,7 +199,7 @@ class GraphClient[F[_]](val config: ProteusConfig, val graphName: String)(implic
     * @return
     */
   def deleteEdgeCollection(collectionName: String): F[Either[Throwable, Unit]] = sync.delay {
-    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName").method(DELETE)).asString
+    val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -217,7 +217,7 @@ class GraphClient[F[_]](val config: ProteusConfig, val graphName: String)(implic
     * @return
     */
   def deleteVertexCollection(collectionName: String): F[Either[Throwable, Unit]] = sync.delay {
-    val response = postAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$collectionName").method(DELETE)).asString
+    val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$collectionName").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))

@@ -15,13 +15,12 @@ class ArangoClient[F[_]](config: ProteusConfig)(implicit val sync: Sync[F]) exte
   val hostPort: String = s"${config.host}:${config.port}"
 
   private val logger = Logger[ArangoClient[F]]
-  protected implicit val arangoHost: String = if(config.tls.getOrElse(false)) s"https://$hostPort" else s"http://$hostPort"
+  protected implicit val arangoHost: String = if(config.tls) s"https://$hostPort" else s"http://$hostPort"
   private val database = "database"
-  type JWT = String
   type DatabaseName = String
 
   def getCurrentDatabase: F[Either[Throwable, CurrentDatabase]] = sync.delay {
-    val response: HttpResponse[String] = postAuth(Http(s"$arangoHost/$api/$database/current")).asString
+    val response: HttpResponse[String] = withAuth(Http(s"$arangoHost/$api/$database/current")).asString
     decode[CurrentDatabase](response.body) match {
       case Right(ok) => Right(ok)
       case Left(error) =>
@@ -37,7 +36,7 @@ class ArangoClient[F[_]](config: ProteusConfig)(implicit val sync: Sync[F]) exte
     * @return
     */
   def getDatabaseList: F[Either[Throwable, List[DatabaseName]]] = sync.delay {
-    val response: HttpResponse[String] = postAuth(Http(s"$arangoHost/$api/$database")).asString
+    val response: HttpResponse[String] = withAuth(Http(s"$arangoHost/$api/$database")).asString
     decode[ResultList](response.body) match {
       case Right(ok) => Right(ok.result)
       case Left(error) =>
@@ -55,7 +54,7 @@ class ArangoClient[F[_]](config: ProteusConfig)(implicit val sync: Sync[F]) exte
     */
   def createDatabase(dbName: String, users: Option[List[User]]): F[Either[Throwable, Unit]] = sync.delay {
     val postData = Database(dbName, users)
-    val response: HttpResponse[String] = postAuth(Http(s"$arangoHost/$api/$database").postData(postData.asJson.noSpaces)).asString
+    val response: HttpResponse[String] = withAuth(Http(s"$arangoHost/$api/$database").postData(postData.asJson.noSpaces)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -73,7 +72,7 @@ class ArangoClient[F[_]](config: ProteusConfig)(implicit val sync: Sync[F]) exte
     * @return
     */
   def deleteDatabase(dbName: String): F[Either[Throwable, Unit]] = sync.delay {
-    val response: HttpResponse[String] = postAuth(Http(s"$arangoHost/$api/$database/$dbName").method(DELETE)).asString
+    val response: HttpResponse[String] = withAuth(Http(s"$arangoHost/$api/$database/$dbName").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
@@ -93,7 +92,7 @@ class ArangoClient[F[_]](config: ProteusConfig)(implicit val sync: Sync[F]) exte
     */
   def createCollection(dbName: String, collectionName: String): F[Either[Throwable, CollectionResponse]] = sync.delay {
     val postData = Collection(collectionName)
-    val response: HttpResponse[String] = postAuth(Http(s"$arangoHost/$db/$dbName/$api/collection").postData(postData.asJson.noSpaces)).asString
+    val response: HttpResponse[String] = withAuth(Http(s"$arangoHost/$db/$dbName/$api/collection").postData(postData.asJson.noSpaces)).asString
     decode[CollectionResponse](response.body) match {
       case Right(ok) =>
         if(ok.error) error(errorMessage(ok.errorMessage))
@@ -112,7 +111,7 @@ class ArangoClient[F[_]](config: ProteusConfig)(implicit val sync: Sync[F]) exte
     * @return
     */
   def dropCollection(dbName: String, collectionName: String): F[Either[Throwable, CollectionResponse]] = sync.delay {
-    val response: HttpResponse[String] = postAuth(Http(s"$arangoHost/$db/$dbName/$api/collection/$collectionName").method(DELETE)).asString
+    val response: HttpResponse[String] = withAuth(Http(s"$arangoHost/$db/$dbName/$api/collection/$collectionName").method(DELETE)).asString
     decode[CollectionResponse](response.body) match {
       case Right(ok) =>
         if(ok.error) error(errorMessage(ok.errorMessage))

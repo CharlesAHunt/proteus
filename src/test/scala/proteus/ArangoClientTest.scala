@@ -5,8 +5,6 @@ import com.charlesahunt.proteus.client.ArangoClient
 import com.charlesahunt.proteus.models.User
 import org.scalatest.funspec.AnyFunSpec
 
-import scala.language.postfixOps
-
 class ArangoClientTest extends AnyFunSpec {
 
   val testDB = "testDocumentClient"

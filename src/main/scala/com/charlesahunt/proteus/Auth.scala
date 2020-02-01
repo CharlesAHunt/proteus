@@ -1,6 +1,7 @@
 package com.charlesahunt.proteus
 
 import com.charlesahunt.proteus.config.Config
+import com.charlesahunt.proteus.models.Error
 import com.typesafe.scalalogging.Logger
 import io.circe.generic.auto._
 import io.circe.parser.decode
@@ -8,40 +9,41 @@ import io.circe.syntax._
 import scalaj.http.{Http, HttpRequest, HttpResponse}
 
 /**
-  * Handles authentication using JWT headers
+  * Handles authentication with JWT headers
   */
 trait Auth {
 
   private val logger = Logger("Auth")
+  type JWT = String
+  protected lazy val JWT = postAuth match {
+    case Right(ok) => ok
+    case Left(error) =>
+      logger.error(error.message)
+      ""
+  }
 
   /**
-    * Retrieves a JWT and attaches it to an HttpRequest
+    * Retrieves a JWT for the configured user from the ArangoDB server
     *
-    * @param request
     * @return HttpRequest with JWT in the Authorization header as a bearer token
     */
-  def postAuth(request: HttpRequest): HttpRequest = {
+  def postAuth: Either[Error, JWT] = {
     val authData = Auth(Config.configuration.user, Config.configuration.password)
-    val token = {
-      val response: HttpResponse[String] = Http(s"${Config.configuration.host}/_open/auth").postData(authData.asJson.noSpaces).asString
-      decode[Jwt](response.body) match {
-        case Right(ok) => Right(ok.jwt)
-        case Left(error) =>
-          logger.error(error.getMessage)
-          Left(error)
-      }
-    }
-    token match {
-      case Right(jwt) => authToken(request, jwt)
+    val response: HttpResponse[String] = Http(s"${Config.configuration.host.toString}/_open/auth")
+      .postData(authData.asJson.noSpaces).asString
+    decode[Jwt](response.body) match {
+      case Right(ok) => Right(ok.jwt)
       case Left(error) =>
         logger.error(error.getMessage)
-        request
+        Left(Error(error.getMessage))
     }
   }
 
-  private def authToken(request: HttpRequest, jwt: String): HttpRequest =
-    request.header("Authorization", s"bearer $jwt")
+  def withAuth(request: HttpRequest): HttpRequest =
+    request.header("Authorization", s"bearer ${JWT.toString}")
 
   case class Auth(username: String, password: String)
+
   case class Jwt(jwt: String, must_change_password: Boolean)
+
 }

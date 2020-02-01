@@ -6,8 +6,6 @@ import com.charlesahunt.proteus.models.User
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers._
 
-import scala.language.postfixOps
-
 class DocumentClientTest extends AnyFunSpec {
 
   val testDB = "testDocumentClient"
@@ -40,11 +38,11 @@ class DocumentClientTest extends AnyFunSpec {
     describe("Create Document") {
       it("should create document in test collection") {
         val result = driver.createDocument(testCollection, """{ "Hello": "World" }""")
-        val res = result.unsafeRunSync()
-        testDocID = res.right.get
-        res match {
+        result.unsafeRunSync() match {
           case Left(err) => fail(err)
-          case Right(ok) => ok.toLong should be > 0L
+          case Right(ok) =>
+            ok.toLong should be > 0L
+            testDocID = ok
         }
       }
     }

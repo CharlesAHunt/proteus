@@ -7,7 +7,7 @@ import scala.concurrent.ExecutionContextExecutorService
 package object proteus {
 
   val api: String = "_api"
-  val db: String = "_db"
+  val db: String = "database"
   val gharial: String = "gharial"
 
   val DELETE: String = "DELETE"

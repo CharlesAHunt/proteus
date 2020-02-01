@@ -3,10 +3,8 @@ package com.charlesahunt.proteus
 import com.charlesahunt.proteus.models.ResultMessage
 import com.typesafe.scalalogging.Logger
 import scalaj.http.HttpResponse
-import io.circe._
 import io.circe.generic.auto._
-import io.circe.parser.{decode, _}
-import io.circe.syntax._
+import io.circe.parser.decode
 
 trait HTTP {
 
