@@ -15,7 +15,7 @@ import scalaj.http._
   *
   * @param databaseName
   */
-class DocumentClient[F[_]](val config: ProteusConfig, val databaseName: String)(implicit override val sync: Sync[F])
+class DocumentClient[F[_]](config: ProteusConfig, databaseName: String)(implicit override val sync: Sync[F])
   extends ArangoClient[F](config: ProteusConfig)(sync: Sync[F]) {
 
   private val logger = Logger[DocumentClient[F]]

@@ -1,6 +1,6 @@
 package com.charlesahunt.proteus
 
-import com.charlesahunt.proteus.config.Config
+import com.charlesahunt.proteus.client.ArangoClient
 import com.charlesahunt.proteus.models.Error
 import com.typesafe.scalalogging.Logger
 import io.circe.generic.auto._
@@ -11,10 +11,12 @@ import scalaj.http.{Http, HttpRequest, HttpResponse}
 /**
   * Handles authentication with JWT headers
   */
-trait Auth {
+trait Auth[F[_]] { client: ArangoClient[F] =>
 
   private val logger = Logger("Auth")
   type JWT = String
+  val hostPort: String = s"${client.config.host}:${client.config.port}"
+  protected implicit lazy val arangoHost: String = if(config.tls) s"https://$hostPort" else s"http://$hostPort"
   protected lazy val JWT = postAuth match {
     case Right(ok) => ok
     case Left(error) =>
@@ -28,8 +30,8 @@ trait Auth {
     * @return HttpRequest with JWT in the Authorization header as a bearer token
     */
   def postAuth: Either[Error, JWT] = {
-    val authData = Auth(Config.configuration.user, Config.configuration.password)
-    val response: HttpResponse[String] = Http(s"${Config.configuration.host.toString}/_open/auth")
+    val authData = Auth(config.user, config.password)
+    val response: HttpResponse[String] = Http(s"$arangoHost/_open/auth")
       .postData(authData.asJson.noSpaces).asString
     decode[Jwt](response.body) match {
       case Right(ok) => Right(ok.jwt)

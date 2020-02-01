@@ -10,12 +10,9 @@ import io.circe.parser.decode
 import io.circe.syntax._
 import scalaj.http._
 
-class ArangoClient[F[_]](config: ProteusConfig)(implicit val sync: Sync[F]) extends Auth {
-
-  val hostPort: String = s"${config.host}:${config.port}"
+class ArangoClient[F[_]](val config: ProteusConfig)(implicit val sync: Sync[F]) extends Auth[F] {
 
   private val logger = Logger[ArangoClient[F]]
-  protected implicit val arangoHost: String = if(config.tls) s"https://$hostPort" else s"http://$hostPort"
   private val database = "database"
   type DatabaseName = String
 

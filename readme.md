@@ -32,15 +32,11 @@ maven:
 ```
 <dependency>
   <groupId>com.cornfluence</groupId>
-  <artifactId>proteus_2.12</artifactId>
-  <version>0.6.7</version>
+  <artifactId>proteus_2.13</artifactId>
+  <version>0.7.2</version>
   <classifier>sources</classifier>
 </dependency>
 ```
-
-Note: Versions of Proteus less than 0.6.0 are for ArangoDB 2.x and built with Scala 2.11
-
-Note: Versions of Proteus greater than 0.6.0 and less than 0.7.0 are for ArangoDB 3.x and built with Scala 2.12
 
 Note: Versions of Proteus greater than 0.7.0 are for ArangoDB 3.6.+ and built with Scala 2.13
 

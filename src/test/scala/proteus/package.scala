@@ -5,7 +5,7 @@ package object proteus {
   val testConfig = ProteusConfig(
       user = "testUser",
       password = "pass",
-      dataBaseName = "testDB"
+      database = "testDB"
   )
 
 }

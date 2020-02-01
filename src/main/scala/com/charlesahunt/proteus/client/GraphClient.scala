@@ -16,7 +16,7 @@ import scalaj.http._
   *
   * @param graphName
   */
-class GraphClient[F[_]](val config: ProteusConfig, val graphName: String)(implicit override val sync: Sync[F])
+class GraphClient[F[_]](config: ProteusConfig, graphName: String)(implicit override val sync: Sync[F])
   extends ArangoClient[F](config: ProteusConfig)(sync: Sync[F]) {
 
   private val logger = Logger[GraphClient[F]]

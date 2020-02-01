@@ -12,7 +12,7 @@ object Config {
 
   val configuration: ProteusConfig = {
     logger.info(s"Loading config")
-    ConfigSource.default.load[ProteusConfig] match {
+    ConfigSource.default.at("proteus").load[ProteusConfig] match {
       case Left(error) =>
         logger.error(s"There was an error loading the config, shutting down: ${error.toList.toString()}")
         exit()
@@ -23,10 +23,10 @@ object Config {
 }
 
 final case class ProteusConfig(
+  host: String = "localhost",
   user: String,
   password: String,
-  dataBaseName: String,
-  host: String = "localhost",
+  database: String,
   port: String = "8529",
   tls: Boolean = false
 )
