@@ -6,7 +6,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/be829fed3c134f8cbf14c60290651d63)](https://www.codacy.com/app/matthicks/proteus?utm_source=github.com&utm_medium=referral&utm_content=cornfluence/proteus&utm_campaign=Badge_Coverage)
 [![Stories in Ready](https://badge.waffle.io/cornfluence/proteus.png?label=ready&title=Ready)](https://waffle.io/charlesahunt/proteus)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cornfluence/proteus)
-[![Latest version](https://index.scala-lang.org/cornfluence/proteus/proteus/latest.svg)](https://index.scala-lang.org/cornfluence/proteus)
+[![Latest version](https://index.scala-lang.org/charlesahunt/proteus/proteus/latest.svg)](https://index.scala-lang.org/cornfluence/proteus)
 
 ArangoDB driver for Scala.
 
