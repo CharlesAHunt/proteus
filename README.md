@@ -24,7 +24,7 @@ You may need to add the Sonatype nexus to your resolvers:
 
 sbt:
 ```
-libraryDependencies += "com.cornfluence" % "proteus_2.13" % "0.7.2"
+libraryDependencies += "com.cornfluence" % "proteus_2.13" % "0.7.3"
 ```
 
 maven:
@@ -32,7 +32,7 @@ maven:
 <dependency>
   <groupId>com.cornfluence</groupId>
   <artifactId>proteus_2.13</artifactId>
-  <version>0.7.2</version>
+  <version>0.7.3</version>
   <classifier>sources</classifier>
 </dependency>
 ```
