@@ -1,7 +1,7 @@
 package com.charlesahunt.proteus
 
 import com.charlesahunt.proteus.client.ArangoClient
-import com.charlesahunt.proteus.models.Error
+import com.charlesahunt.proteus.models.{ArangoError, ProteusError}
 import com.typesafe.scalalogging.Logger
 import io.circe.generic.auto._
 import io.circe.parser.decode
@@ -20,7 +20,7 @@ trait Auth[F[_]] { client: ArangoClient[F] =>
   protected lazy val JWT = postAuth match {
     case Right(ok) => ok
     case Left(error) =>
-      logger.error(error.message)
+      logger.error(error.errorMessage)
       ""
   }
 
@@ -29,15 +29,28 @@ trait Auth[F[_]] { client: ArangoClient[F] =>
     *
     * @return HttpRequest with JWT in the Authorization header as a bearer token
     */
-  def postAuth: Either[Error, JWT] = {
+  def postAuth: Either[ProteusError, JWT] = {
     val authData = Auth(config.user, config.password)
     val response: HttpResponse[String] = Http(s"$arangoHost/_open/auth")
       .postData(authData.asJson.noSpaces).asString
+    if(response.is2xx) decodeSuccessResponse(response) else decodeErrorResponse(response)
+  }
+
+  def decodeErrorResponse(response: HttpResponse[String]): Either[ProteusError, JWT] = {
+    decode[ArangoError](response.body) match {
+      case Right(ok) => Left(ProteusError(ok.errorMessage))
+      case Left(error) =>
+        logger.error(error.getMessage)
+        Left(ProteusError(error.getMessage))
+    }
+  }
+
+  def decodeSuccessResponse(response: HttpResponse[String]): Either[ProteusError, JWT] = {
     decode[Jwt](response.body) match {
       case Right(ok) => Right(ok.jwt)
       case Left(error) =>
         logger.error(error.getMessage)
-        Left(Error(error.getMessage))
+        Left(ProteusError(error.getMessage))
     }
   }
 
@@ -46,6 +59,6 @@ trait Auth[F[_]] { client: ArangoClient[F] =>
 
   case class Auth(username: String, password: String)
 
-  case class Jwt(jwt: String, must_change_password: Boolean)
+  case class Jwt(jwt: String)
 
 }

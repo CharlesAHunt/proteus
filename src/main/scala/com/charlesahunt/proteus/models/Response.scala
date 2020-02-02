@@ -10,11 +10,11 @@ final case class Result(
 final case class ResultMessage(
   error: Option[Boolean],
   errorMessage: Option[String] = None,
-  result: Option[Boolean] = None,
+  code: Option[Int] = None,
   graph: Option[GraphResponse] = None,
+  result: Option[Boolean] = None,
   vertex: Option[EdgeOrVertex] = None,
   edge: Option[EdgeOrVertex] = None,
-  code: Option[Int] = None,
   errorNum: Option[Int] = None,
   _id: Option[String] = None,
   _rev: Option[String] = None,
@@ -63,10 +63,6 @@ final case class CurrentDatabase(
   code : Int
 )
 
-final case class Error(
-  message: String
-)
-
 final case class CollectionResponse(
   id : String,
   error : Boolean,
@@ -83,11 +79,15 @@ final case class CollectionResponse(
 
 final case class GraphResponse(
   name: String,
+  _key: Option[String],
   edgeDefinitions: List[EdgeDefinition],
   orphanCollections: List[String],
   isSmart: Boolean,
   numberOfShards: Long,
-  smartGraphAttribute: String,
+  smartGraphAttribute: Option[String],
+  writeConcern: Option[Int],
+  minReplicationFactor: Option[Int],
+  replicationFactor: Option[Int],
   _id: String,
   _rev: String
 )

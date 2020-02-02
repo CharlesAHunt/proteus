@@ -10,7 +10,6 @@ import io.circe.parser.decode
 import io.circe.syntax._
 import scalaj.http._
 
-
 /**
   * Manages Graph API operations
   *
@@ -28,12 +27,12 @@ class GraphClient[F[_]](config: ProteusConfig, graphName: String)(implicit overr
     * @return
     */
   def createGraph(
-    edges: List[EdgeDefinition]): F[Either[Throwable, GraphResponse]] = sync.delay {
+    edges: List[EdgeDefinition]): F[Either[Exception, GraphResponse]] = sync.delay {
     val response = withAuth(Http(s"$arangoHost/$api/$gharial")).postData(Graph(graphName, edges).asJson.noSpaces).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(s"Error creating graph with code {}}}")
-        else ok.graph.toRight[Throwable](new Exception("Graph response missing"))
+        else ok.graph.toRight[Exception](new Exception("Graph response missing"))
       case Left(error) =>
         logger.error("GraphClient.createGraph", error.getMessage)
         Left(error)
@@ -45,7 +44,7 @@ class GraphClient[F[_]](config: ProteusConfig, graphName: String)(implicit overr
     *
     * @return
     */
-  def dropGraph: F[Either[Throwable, Boolean]] = sync.delay {
+  def dropGraph: F[Either[Exception, Boolean]] = sync.delay {
     val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName").method(DELETE)).asString
     decode[DropGraphResponse](response.body) match {
       case Right(ok) =>
@@ -63,15 +62,13 @@ class GraphClient[F[_]](config: ProteusConfig, graphName: String)(implicit overr
     * @param collectionName
     * @return
     */
-  def createVertexCollection(
-    collectionName: String
-  ): F[Either[Throwable, GraphResponse]] = sync.delay {
+  def createVertexCollection(collectionName: String): F[Either[Exception, GraphResponse]] = sync.delay {
     val collection = CollectionName(collectionName)
     val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex").postData(collection.asJson.noSpaces)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
-        else ok.graph.toRight[Throwable](new Exception("Graph reesponse missing"))
+        else ok.graph.toRight[Exception](new Exception("Graph reesponse missing"))
       case Left(error) =>
         logger.error("GraphClient.createVertexCollection", error.getMessage)
         Left(error)
@@ -89,12 +86,12 @@ class GraphClient[F[_]](config: ProteusConfig, graphName: String)(implicit overr
   def createVertex(
     vertexCollection: String,
     json: String
-  ): F[Either[Throwable, EdgeOrVertex]] = sync.delay {
+  ): F[Either[Exception, EdgeOrVertex]] = sync.delay {
     val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$vertexCollection").postData(json)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
-        else ok.vertex.toRight[Throwable](new Exception("Vertex missing from response"))
+        else ok.vertex.toRight[Exception](new Exception("Vertex missing from response"))
       case Left(error) =>
         logger.error("GraphClient.createVertex", error.getMessage)
         Left(error)
@@ -112,13 +109,13 @@ class GraphClient[F[_]](config: ProteusConfig, graphName: String)(implicit overr
   def createEdgeCollection(
     collectionName: String,
     from: List[String],
-    to: List[String]): F[Either[Throwable, List[EdgeDefinition]]] = sync.delay {
+    to: List[String]): F[Either[Exception, List[EdgeDefinition]]] = sync.delay {
     val edge = EdgeDefinition(collectionName, from, to).asJson.noSpaces
     val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/").postData(edge)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
-        else ok.graph.map(_.edgeDefinitions).toRight[Throwable](new Exception("Edge definition response missing"))
+        else ok.graph.map(_.edgeDefinitions).toRight[Exception](new Exception("Edge definition response missing"))
       case Left(error) =>
         logger.error("GraphClient.createEdgeCollection", error.getMessage)
         Left(error)
@@ -140,13 +137,13 @@ class GraphClient[F[_]](config: ProteusConfig, graphName: String)(implicit overr
     collectionName: String,
     edgeType: String,
     from: String,
-    to: String): F[Either[Throwable, EdgeOrVertex]] = sync.delay {
+    to: String): F[Either[Exception, EdgeOrVertex]] = sync.delay {
     val edge = Edge(edgeType, from, to).asJson.noSpaces
     val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName").postData(edge)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
         if(isError(ok)) error(errorMessage(ok.errorMessage))
-        else ok.edge.toRight[Throwable](new Exception("Edge response missing"))
+        else ok.edge.toRight[Exception](new Exception("Edge response missing"))
       case Left(error) =>
         logger.error("GraphClient.createEdge", error.getMessage)
         Left(error)
@@ -160,7 +157,7 @@ class GraphClient[F[_]](config: ProteusConfig, graphName: String)(implicit overr
     * @param edgeKey
     * @return
     */
-  def deleteEdge(collectionName: String, edgeKey: String): F[Either[Throwable, Unit]] = sync.delay {
+  def deleteEdge(collectionName: String, edgeKey: String): F[Either[Exception, Unit]] = sync.delay {
     val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName/$edgeKey").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
@@ -179,7 +176,7 @@ class GraphClient[F[_]](config: ProteusConfig, graphName: String)(implicit overr
     * @param vertexKey
     * @return
     */
-  def deleteVertex(collectionName: String, vertexKey: String): F[Either[Throwable, Unit]] = sync.delay {
+  def deleteVertex(collectionName: String, vertexKey: String): F[Either[Exception, Unit]] = sync.delay {
     val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$collectionName/$vertexKey").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
@@ -198,7 +195,7 @@ class GraphClient[F[_]](config: ProteusConfig, graphName: String)(implicit overr
     * @param collectionName
     * @return
     */
-  def deleteEdgeCollection(collectionName: String): F[Either[Throwable, Unit]] = sync.delay {
+  def deleteEdgeCollection(collectionName: String): F[Either[Exception, Unit]] = sync.delay {
     val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/edge/$collectionName").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>
@@ -216,7 +213,7 @@ class GraphClient[F[_]](config: ProteusConfig, graphName: String)(implicit overr
     * @param collectionName
     * @return
     */
-  def deleteVertexCollection(collectionName: String): F[Either[Throwable, Unit]] = sync.delay {
+  def deleteVertexCollection(collectionName: String): F[Either[Exception, Unit]] = sync.delay {
     val response = withAuth(Http(s"$arangoHost/$api/$gharial/$graphName/vertex/$collectionName").method(DELETE)).asString
     decode[ResultMessage](response.body) match {
       case Right(ok) =>

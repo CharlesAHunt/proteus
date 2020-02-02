@@ -10,6 +10,12 @@ import io.circe.parser.decode
 import io.circe.syntax._
 import scalaj.http._
 
+/**
+  *
+  * @param config: Client connection configuration
+  * @param sync
+  * @tparam F
+  */
 class ArangoClient[F[_]](val config: ProteusConfig)(implicit val sync: Sync[F]) extends Auth[F] {
 
   private val logger = Logger[ArangoClient[F]]

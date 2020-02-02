@@ -12,6 +12,15 @@ class ArangoClientTest extends AnyFunSpec {
 
   describe("==============\n| Arango Client Test |\n==============") {
 
+    describe("Create JWT") {
+      it("should create new JWT") {
+        driver.postAuth match {
+          case Left(err) => fail(err.errorMessage)
+          case Right(ok) => ok
+        }
+      }
+    }
+
     describe("Create Database") {
       it("should create new Database") {
         val result = driver.createDatabase(testDB, Some(List(User("user", "password"))))

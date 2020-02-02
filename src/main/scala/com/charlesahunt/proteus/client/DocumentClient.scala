@@ -29,12 +29,12 @@ class DocumentClient[F[_]](config: ProteusConfig, databaseName: String)(implicit
     */
    def createDocument(
      collectionName: String,
-     documentString : String): F[Either[Throwable, String]] = sync.delay {
+     documentString : String): F[Either[Exception, String]] = sync.delay {
      val response = withAuth(Http(s"$arangoHost/$db/$databaseName/$api/document/$collectionName").postData(documentString)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
          if(isError(ok)) error(errorMessage(ok.errorMessage))
-         else ok._key.toRight[Throwable](new Exception("Document key is missing"))
+         else ok._key.toRight[Exception](new Exception("Document key is missing"))
        case Left(error) =>
          logger.error(error.getMessage)
          Left(error)
@@ -50,12 +50,12 @@ class DocumentClient[F[_]](config: ProteusConfig, databaseName: String)(implicit
     * @return document key
     */
    def replaceDocument(collectionName: String, documentID : String, documentString : String)
-   : F[Either[Throwable, String]] = sync.delay {
+   : F[Either[Exception, String]] = sync.delay {
      val response = withAuth(Http(s"$arangoHost/$db/$databaseName/$api/document/$collectionName/$documentID").put(documentString)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>
          if(isError(ok)) error(errorMessage(ok.errorMessage))
-         else ok._key.toRight[Throwable](new Exception("Document key is missing"))
+         else ok._key.toRight[Exception](new Exception("Document key is missing"))
        case Left(error) =>
          logger.error(error.getMessage)
          Left(error)
@@ -68,7 +68,7 @@ class DocumentClient[F[_]](config: ProteusConfig, databaseName: String)(implicit
     * @param collectionName
     * @return
     */
-   def getAllDocuments(collectionName : String): F[Either[Throwable, List[String]]] = sync.delay {
+   def getAllDocuments(collectionName : String): F[Either[Exception, List[String]]] = sync.delay {
      val collection = CollectionName(collectionName)
      val response = withAuth(Http(s"$arangoHost/$db/$databaseName/$api/simple/all-keys")).put(collection.asJson.noSpaces).asString
      decode[ResultList](response.body) match {
@@ -86,7 +86,7 @@ class DocumentClient[F[_]](config: ProteusConfig, databaseName: String)(implicit
     * @param documentID
     * @return document JSON body
     */
-   def getDocument(collectionName : String, documentID : String): F[Either[Throwable, String]] = sync.delay {
+   def getDocument(collectionName : String, documentID : String): F[Either[Exception, String]] = sync.delay {
      val response = withAuth(Http(s"$arangoHost/$db/$databaseName/$api/document/$collectionName/$documentID")).asString
      Right(response.body)
    }
@@ -98,7 +98,7 @@ class DocumentClient[F[_]](config: ProteusConfig, databaseName: String)(implicit
     * @param documentID
     * @return
     */
-   def deleteDocument(collectionName : String, documentID : String): F[Either[Throwable, Unit]] = sync.delay {
+   def deleteDocument(collectionName : String, documentID : String): F[Either[Exception, Unit]] = sync.delay {
      val response = withAuth(Http(s"$arangoHost/$db/$databaseName/$api/document/$collectionName/$documentID").method(DELETE)).asString
      decode[ResultMessage](response.body) match {
        case Right(ok) =>

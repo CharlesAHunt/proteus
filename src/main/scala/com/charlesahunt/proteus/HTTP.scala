@@ -18,7 +18,7 @@ trait HTTP {
           case Right(ok) => Left(ok)
           case Left(error) =>
             logger.error(error.getMessage)
-            Left(ResultMessage(error = Option(true), Option(error.getMessage)))
+            Left(ResultMessage(error = Option(true), errorMessage = Option(error.getMessage)))
         }
     }
   }

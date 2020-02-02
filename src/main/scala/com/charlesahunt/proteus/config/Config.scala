@@ -26,7 +26,6 @@ final case class ProteusConfig(
   host: String = "localhost",
   user: String,
   password: String,
-  database: String,
   port: String = "8529",
   tls: Boolean = false
 )
