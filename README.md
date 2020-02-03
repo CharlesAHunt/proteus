@@ -58,7 +58,7 @@ proteus {
 You can also create the ProteusConfig manually in your source like so:
 
 ```
-final case class ProteusConfig(
+ProteusConfig(
   host: String = "localhost",
   user: String,
   password: String,
