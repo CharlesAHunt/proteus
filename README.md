@@ -58,7 +58,7 @@ To configure your application's ArangoDB user, you will need to create a Proteus
 You can also create the ProteusConfig manually in your source like so:
 
 ```
-    final case class ProteusConfig(
+    ProteusConfig(
       host: String = "localhost",
       user: String,
       password: String,
@@ -161,5 +161,10 @@ Delete a vertex
 ```
 Delete a vertex collection
 ```
+<<<<<<< HEAD
     graphClient.deleteVertexCollection("vertexCollectionName")
 ```
+=======
+            graphClient.deleteVertexCollection("vertexCollectionName")
+```
+>>>>>>> 3fd9151bbea0b7258ed377071833ee6c51abc3ef
