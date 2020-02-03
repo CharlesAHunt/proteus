@@ -19,22 +19,22 @@ This driver is compatible with ArangoDB `v3.6.x`
 
 You may need to add the Sonatype nexus to your resolvers:
 ``` 
- resolvers ++= Seq("OSS" at "http://oss.sonatype.org/content/repositories/releases")
+     resolvers ++= Seq("OSS" at "http://oss.sonatype.org/content/repositories/releases")
 ```
 
 sbt:
 ```
-libraryDependencies += "com.cornfluence" % "proteus_2.13" % "0.7.3"
+    libraryDependencies += "com.cornfluence" % "proteus_2.13" % "0.7.3"
 ```
 
 maven:
 ```
-<dependency>
-  <groupId>com.cornfluence</groupId>
-  <artifactId>proteus_2.13</artifactId>
-  <version>0.7.3</version>
-  <classifier>sources</classifier>
-</dependency>
+    <dependency>
+      <groupId>com.cornfluence</groupId>
+      <artifactId>proteus_2.13</artifactId>
+      <version>0.7.3</version>
+      <classifier>sources</classifier>
+    </dependency>
 ```
 
 Note: Versions of Proteus greater than 0.7.0 are for ArangoDB 3.6.+ and built with Scala 2.13
@@ -46,78 +46,78 @@ To configure your application's ArangoDB user, you will need to create a Proteus
   the document and graph clients.  You will most likely want to materialize the configuration case class from an application.conf
   that looks like the following so you can materialize it to a case class using `Config.configuration` in your calling code:
 ```
-proteus {
-    host = "localhost"
-    user = "root"
-    password = "openSesame"
-    port = "8529",
-    tls = false
-}
+    proteus {
+        host = "localhost"
+        user = "root"
+        password = "openSesame"
+        port = "8529",
+        tls = false
+    }
 ```
 
 You can also create the ProteusConfig manually in your source like so:
 
 ```
-final case class ProteusConfig(
-  host: String = "localhost",
-  user: String,
-  password: String,
-  port: String = "8529",
-  tls: Boolean = false
-)
+    final case class ProteusConfig(
+      host: String = "localhost",
+      user: String,
+      password: String,
+      port: String = "8529",
+      tls: Boolean = false
+    )
 ```
 
 ## Examples
 
 ### Client API
 ```
-            val documentClient = DocumentClient(name = "test")
-        
-            val graphClient = GraphClient(name = "test")
+    val documentClient = DocumentClient(name = "test")
+            
+    val graphClient = GraphClient(name = "test")
 ```
 ### Database API
 
 Create a database:
 ```
-            client.createDatabase("dbName", List(User(username = "user", password = "pass", active = true)))
-            
-            client.getDatabaseList
-            
-            client.getCurrentDatabase
+    client.createDatabase("dbName", List(User(username = "user", password = "pass", active = true)))
+    
+    client.getDatabaseList
+    
+    client.getCurrentDatabase
 ```           
 Delete a database:
  ```           
-            client.deleteDatabase("dbName")
+    client.deleteDatabase("dbName")
             
 ```            
 ### Collection API
 ```
-            client.createCollection("dbName", testCollection)
+    client.createCollection("dbName", testCollection)
     
-            client.dropCollection("dbName", testCollection)
+    client.dropCollection("dbName", testCollection)
 
 ```            
 ### Document API
                         
 Create a document (returning the document id as a string):
 ```
-            documentClient.createDocument("testCollection","""{ "Hello": "World" }""")
+    documentClient.createDocument("testCollection","""{ "Hello": "World" }""")
 ```           
 Fetch all documents:
 ```
-            documentClient.getAllDocuments("testCollection")
+    documentClient.getAllDocuments("testCollection")
 ```         
 Fetch a single document:
 ```
-            documentClient.getDocument("testCollection", "documentID")
+    documentClient.getDocument("testCollection", "documentID")
 ```
 Update/Replace a document:
 ```            
-            documentClient.replaceDocument("testCollection", "documentID","""{ "Hello": "World" }""")
+    documentClient.replaceDocument("testCollection", "documentID","""{ "Hello": "World" }""")
 ```            
 Remove a document:
 ```
-            documentClient.deleteDocument("testCollection", "documentID")
+    documentClient.deleteDocument("testCollection", "documentID")
 ```            
 ### Graph API
 
@@ -125,41 +125,41 @@ Remove a document:
  
 Create a graph
 ```
-            graphClient.createGraph(List())
+    graphClient.createGraph(List())
 ``` 
 Drop a graph
 ```
-            graphClient.dropGraph()
+    graphClient.dropGraph()
 ``` 
 Create a vertex collection
 ```
-            graphClient.createVertexCollection("vertexCollectionName")
+    graphClient.createVertexCollection("vertexCollectionName")
 ```
 Create an edge collection
 ```
-            graphClient.createEdgeCollection("edgeCollectionName", List("vertexCollectionName"), List("otherVertexCollectionName"))
+    graphClient.createEdgeCollection("edgeCollectionName", List("vertexCollectionName"), List("otherVertexCollectionName"))
 ```
 Create a vertex
 ```
-            graphClient.createVertex("vertexCollectionName", """{"free":"style"}""")
+    graphClient.createVertex("vertexCollectionName", """{"free":"style"}""")
 ```
 Create an edge
 ```
-            graphClient.createEdge("edgeCollectionName", "typeName", "vertexOneID", "vertexTwoID")
+    graphClient.createEdge("edgeCollectionName", "typeName", "vertexOneID", "vertexTwoID")
 ```            
 Delete an edge
 ```
-            graphClient.deleteEdge("edgeCollectionName", "edgeKey")
+    graphClient.deleteEdge("edgeCollectionName", "edgeKey")
 ```
 Delete an edge collection
 ```
-            graphClient.deleteEdgeCollection("edgeCollectionName")
+    graphClient.deleteEdgeCollection("edgeCollectionName")
 ```
 Delete a vertex
 ```
-            graphClient.deleteVertex("vertexCollectionName", "vertexKey")
+    graphClient.deleteVertex("vertexCollectionName", "vertexKey")
 ```
 Delete a vertex collection
 ```
-            graphClient.deleteVertexCollection("vertexCollectionName")
+    graphClient.deleteVertexCollection("vertexCollectionName")
 ```
