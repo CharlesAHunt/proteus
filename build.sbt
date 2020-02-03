@@ -6,7 +6,7 @@ organization := "com.charlesahunt"
 
 description := "Scala driver for ArangoDB"
 
-version := Source.fromFile("./.version").getLines.toList.head
+version := Source.fromFile("./.version").getLines().toList.head
 
 scalaVersion := "2.13.1"
 
@@ -32,22 +32,26 @@ publishTo := {
       Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
 
-pomExtra in Global := {
-   <url>http://www.cornfluence.com</url>
-      <scm>
-         <url>git@github.com:CharlesAHunt/proteus.git</url>
-         <connection>scm:git@github.com:CharlesAHunt/proteus.git</connection>
-      </scm>
-      <developers>
-         <developer>
-            <id>CharlesAHunt</id>
-            <name>Charles A Hunt</name>
-            <url>http://www.cornfluence.com</url>
-         </developer>
-      </developers>
-  }
+import xerial.sbt.Sonatype._
+
+sonatypeProfileName := "com.charlesahunt"
 
 licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
+
+sonatypeProjectHosting := Some(GitHubHosting("CharlesAHunt", "proteus", "charlesalberthunt@gmail.com"))
+
+homepage := Some(url("http://www.cornfluence.com"))
+
+scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/CharlesAHunt/proteus"),
+    "scm:git@github.com:CharlesAHunt/proteus.git"
+  )
+)
+
+developers := List(
+  Developer(id="CharlesAHunt", name="Charles A Hunt", email="charlesalberthunt@gmail.com", url=url("http://www.cornfluence.com"))
+)
 
 parallelExecution in Test := false
 
@@ -57,8 +61,13 @@ resolvers ++= Seq(
 
 shellPrompt := { state => scala.Console.YELLOW + "[" + scala.Console.CYAN + Project.extract(state).currentProject.id + scala.Console.YELLOW + "]" + scala.Console.RED + " $ " + scala.Console.RESET }
 
+val circeVersion = "0.13.0-RC1"
+
 libraryDependencies ++= {
   Seq(
+    "io.circe" %% "circe-core" % circeVersion,
+    "io.circe" %% "circe-generic" % circeVersion,
+    "io.circe" %% "circe-parser" % circeVersion,
     "org.typelevel" %% "cats-core" % "2.1.0",
     "org.typelevel" %% "cats-effect" % "2.0.0",
     "ch.qos.logback" % "logback-classic" % "1.2.3",
@@ -68,14 +77,6 @@ libraryDependencies ++= {
     "org.scalatest" %% "scalatest" % "3.1.0" % "test"
   )
 }
-
-val circeVersion = "0.13.0-RC1"
-
-libraryDependencies ++= Seq(
-  "io.circe" %% "circe-core",
-  "io.circe" %% "circe-generic",
-  "io.circe" %% "circe-parser"
-).map(_ % circeVersion)
 
 wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.Nothing, Wart.DefaultArguments)
 

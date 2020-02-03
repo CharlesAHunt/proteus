@@ -42,107 +42,124 @@ Note: Versions of Proteus greater than 0.7.0 are for ArangoDB 3.6.+ and built wi
 
 ## Configuration
 
-To configure your application's ArangoDB user, you will need to add the following to your application.conf
+To configure your application's ArangoDB user, you will need to create a ProteusConfig configuration object to initialize
+  the document and graph clients.  You will most likely want to materialize the configuration case class from an application.conf
+  that looks like the following so you can materialize it to a case class using `Config.configuration` in your calling code:
 ```
- proteus {
+proteus {
     host = "localhost"
-    user = "username"       //arangodb default is:  "root"
-    password = "password"   //arangodb default is:  ""
- }
+    user = "root"
+    password = "openSesame"
+    port = "8529",
+    tls = false
+}
+```
+
+You can also create the ProteusConfig manually in your source like so:
+
+```
+final case class ProteusConfig(
+  host: String = "localhost",
+  user: String,
+  password: String,
+  port: String = "8529",
+  tls: Boolean = false
+)
 ```
 
 ## Examples
 
 ### Client API
-
-            val client = DocumentClient(name = "test")
+```
+            val documentClient = DocumentClient(name = "test")
         
-            val client = GraphClient(name = "test")
-
+            val graphClient = GraphClient(name = "test")
+```
 ### Database API
 
 Create a database:
-
+```
             client.createDatabase("dbName", List(User(username = "user", password = "pass", active = true)))
             
             client.getDatabaseList
             
             client.getCurrentDatabase
-            
+```           
 Delete a database:
-            
+ ```           
             client.deleteDatabase("dbName")
             
-            
+```            
 ### Collection API
-
+```
             client.createCollection("dbName", testCollection)
     
             client.dropCollection("dbName", testCollection)
 
-            
+```            
 ### Document API
                         
 Create a document (returning the document id as a string):
-
-            client.createDocument("dbName","testCollection","""{ "Hello": "World" }""")
-            
+```
+            documentClient.createDocument("testCollection","""{ "Hello": "World" }""")
+```           
 Fetch all documents:
-
-            client.getAllDocuments("dbName", "testCollection")
-            
+```
+            documentClient.getAllDocuments("testCollection")
+```         
 Fetch a single document:
-
-            client.getDocument("dbName", "testCollection", "documentID")
-
+```
+            documentClient.getDocument("testCollection", "documentID")
+```
 Update/Replace a document:
-            
-            client.replaceDocument("dbName", "testCollection", "documentID","""{ "Hello": "World" }""")
-            
+```            
+            documentClient.replaceDocument("testCollection", "documentID","""{ "Hello": "World" }""")
+```            
 Remove a document:
-
-            client.deleteDocument("dbName", "testCollection", "documentID")
-            
+```
+            documentClient.deleteDocument("testCollection", "documentID")
+```            
 ### Graph API
 
  (Graph API is still under some development)
  
 Create a graph
-
-            client.createGraph("graphName", List())
- 
+```
+            graphClient.createGraph(List())
+``` 
 Drop a graph
-
-            client.dropGraph("graphName")
- 
+```
+            graphClient.dropGraph()
+``` 
 Create a vertex collection
-
-            client.createVertexCollection("graphName", "vertexCollectionName")
-
+```
+            graphClient.createVertexCollection("vertexCollectionName")
+```
 Create an edge collection
-
-            client.createEdgeCollection("graphName", "edgeCollectionName", List("vertexCollectionName"), List("otherVertexCollectionName"))
-
+```
+            graphClient.createEdgeCollection("edgeCollectionName", List("vertexCollectionName"), List("otherVertexCollectionName"))
+```
 Create a vertex
-
-            client.createVertex("graphName", "vertexCollectionName", """{"free":"style"}""")
-
+```
+            graphClient.createVertex("vertexCollectionName", """{"free":"style"}""")
+```
 Create an edge
-
-            client.createEdge("graphName", "edgeCollectionName", "typeName", "vertexOneID", "vertexTwoID")
-            
+```
+            graphClient.createEdge("edgeCollectionName", "typeName", "vertexOneID", "vertexTwoID")
+```            
 Delete an edge
-
-            client.deleteEdge("graphName", "edgeCollectionName", "edgeKey")
-
+```
+            graphClient.deleteEdge("edgeCollectionName", "edgeKey")
+```
 Delete an edge collection
-
-            client.deleteEdgeCollection("graphName", "edgeCollectionName")
-
+```
+            graphClient.deleteEdgeCollection("edgeCollectionName")
+```
 Delete a vertex
-
-            client.deleteVertex("graphName", "vertexCollectionName", "vertexKey")
-
+```
+            graphClient.deleteVertex("vertexCollectionName", "vertexKey")
+```
 Delete a vertex collection
-
-            client.deleteVertexCollection("graphName", "vertexCollectionName")
+```
+            graphClient.deleteVertexCollection("vertexCollectionName")
+```
