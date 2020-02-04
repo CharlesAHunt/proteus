@@ -5,8 +5,6 @@
 [![Build Status](https://travis-ci.org/charlesahunt/proteus.svg?branch=master)](https://travis-ci.org/charlesahunt/proteus)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/be829fed3c134f8cbf14c60290651d63)](https://www.codacy.com/app/matthicks/proteus?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=charlesahunt/proteus&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/be829fed3c134f8cbf14c60290651d63)](https://www.codacy.com/app/matthicks/proteus?utm_source=github.com&utm_medium=referral&utm_content=cornfluence/proteus&utm_campaign=Badge_Coverage)
-[![Stories in Ready](https://badge.waffle.io/cornfluence/proteus.png?label=ready&title=Ready)](https://waffle.io/charlesahunt/proteus)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cornfluence/proteus)
 
 ArangoDB driver for Scala.
 
@@ -71,30 +69,33 @@ You can also create the ProteusConfig manually in your source like so:
 
 ### Client API
 ```
-    val documentClient = DocumentClient(name = "test")
+    val arangoClient = ArangoClient(config = ProteusConfig(...))
+
+    val documentClient = DocumentClient(config = ProteusConfig(...), databaseName = "testDB")
             
-    val graphClient = GraphClient(name = "test")
+    val graphClient = GraphClient(config = ProteusConfig(...), graphName = "testGraph")
+
 ```
 ### Database API
 
 Create a database:
 ```
-    client.createDatabase("dbName", List(User(username = "user", password = "pass", active = true)))
+    arangoClient.createDatabase("dbName", List(User(username = "user", password = "pass", active = true)))
     
-    client.getDatabaseList
+    arangoClient.getDatabaseList
     
-    client.getCurrentDatabase
+    arangoClient.getCurrentDatabase
 ```           
 Delete a database:
  ```           
-    client.deleteDatabase("dbName")
+    arangoClient.deleteDatabase("dbName")
             
 ```            
 ### Collection API
 ```
-    client.createCollection("dbName", testCollection)
+    arangoClient.createCollection("dbName", testCollection)
     
-    client.dropCollection("dbName", testCollection)
+    arangoClient.dropCollection("dbName", testCollection)
 
 ```            
 ### Document API
@@ -161,10 +162,5 @@ Delete a vertex
 ```
 Delete a vertex collection
 ```
-<<<<<<< HEAD
     graphClient.deleteVertexCollection("vertexCollectionName")
 ```
-=======
-            graphClient.deleteVertexCollection("vertexCollectionName")
-```
->>>>>>> 3fd9151bbea0b7258ed377071833ee6c51abc3ef
