@@ -1,8 +1,8 @@
 # Proteus
 
 [![Latest version](https://index.scala-lang.org/charlesahunt/proteus/proteus/latest.svg)](https://index.scala-lang.org/cornfluence/proteus)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.cornfluence/proteus_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.cornfluence/proteus_2.13)
-[![Proteus](https://circleci.com/gh/com.charlesahunt/proteus.svg?style=svg)](https://app.circleci.com/github/CharlesAHunt/proteus)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.charlesahunt/proteus_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.charlesahunt/proteus_2.13)
+[![Proteus](https://circleci.com/gh/CharlesAHunt/proteus.svg?style=svg)](https://circleci.com/gh/CharlesAHunt/proteus)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/be829fed3c134f8cbf14c60290651d63)](https://www.codacy.com/app/matthicks/proteus?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=charlesahunt/proteus&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/be829fed3c134f8cbf14c60290651d63)](https://www.codacy.com/app/matthicks/proteus?utm_source=github.com&utm_medium=referral&utm_content=cornfluence/proteus&utm_campaign=Badge_Coverage)
 
