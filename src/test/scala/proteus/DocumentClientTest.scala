@@ -13,10 +13,8 @@ class DocumentClientTest extends FunSpec {
 
   val testDB = "testDocumentClient"
   val testCollection = "testDocumentClientCollection"
-  var testDocID = ""
-  var testDocID2 = ""
-  var testDocID3 = ""
-  var cursorID = ""
+  //Hold few arangodb objects ID so that we can reference later for checks
+  val idsMap: scala.collection.mutable.Map[String, String] = scala.collection.mutable.Map.empty
   val driver = DocumentClient(name = testDB)
 
   describe("==============\n| Document Client Test |\n==============") {
@@ -54,7 +52,8 @@ class DocumentClientTest extends FunSpec {
         )
 
         val res = Await.result(result, 5 second)
-        testDocID = res.right.get
+        val testDocID = res.right.getOrElse("")
+        idsMap += ("testDocID" -> testDocID)
 
         res match {
           case Left(err) => fail(err)
@@ -72,7 +71,8 @@ class DocumentClientTest extends FunSpec {
         )
 
         val res = Await.result(result, 5 second)
-        testDocID2 = res.right.get
+        val testDocID = res.right.getOrElse("")
+        idsMap += ("testDocID2" -> testDocID)
 
         res match {
           case Left(err) => fail(err)
@@ -90,7 +90,8 @@ class DocumentClientTest extends FunSpec {
         )
 
         val res = Await.result(result, 5 second)
-        testDocID3 = res.right.get
+        val testDocID = res.right.getOrElse("")
+        idsMap += ("testDocID3" -> testDocID)
 
         res match {
           case Left(err) => fail(err)
@@ -122,21 +123,25 @@ class DocumentClientTest extends FunSpec {
         res match {
           case Left(err) => fail(err)
           case Right(ok) =>
+            val testDocID = idsMap.get("testDocID").getOrElse("")
             ok.toString should include(
               s"""{"_key":"$testDocID","_id":"$testCollection/$testDocID"""
             )
+            val testDocID2 = idsMap.get("testDocID2").getOrElse("")
             val userS =
               """"email":"test@gmail.com""""
             ok.toString should include(userS)
             ok.toString should include(
               s"""{"_key":"$testDocID2","_id":"$testCollection/$testDocID2"""
             )
+            val testDocID3 = idsMap.get("testDocID3").getOrElse("")
             val userS2 =
               """"email":"abc@gmail.com""""
             ok.toString should include(userS2)
-            cursorID = com.charlesahunt.proteus.utils.Utils
+            val cursorID = com.charlesahunt.proteus.utils.Utils
               .getCursorID(res)
               .getOrElse("")
+            idsMap += ("cursorID" -> cursorID)
             cursorID.size should be > 0
         }
       }
@@ -144,12 +149,14 @@ class DocumentClientTest extends FunSpec {
 
     describe("Retrieve final document via cursor ID") {
       it("should retrieve last document from the test collection") {
+        val cursorID = idsMap.get("cursorID").getOrElse("")
         val result =
           driver.getQueryPendingResult(testDB, testCollection, cursorID)
         val res = Await.result(result, 5 second)
         res match {
           case Left(err) => fail(err)
           case Right(ok) =>
+            val testDocID3 = idsMap.get("testDocID3").getOrElse("")
             ok.toString should include(
               s"""{"_key":"$testDocID3","_id":"$testCollection/$testDocID3"""
             )
@@ -163,6 +170,7 @@ class DocumentClientTest extends FunSpec {
 
     describe("Retrieve one document by handle") {
       it("should retrieve one document from the test collection") {
+        val testDocID = idsMap.get("testDocID").getOrElse("")
         val result = driver.getDocument(testDB, testCollection, testDocID)
         val res = Await.result(result, 5 second)
         res match {
@@ -181,6 +189,7 @@ class DocumentClientTest extends FunSpec {
       it("should replace one document from the test collection") {
         val userS =
           """{ "title": "developer", "company":"Test", "email":"test@test.com" }"""
+        val testDocID = idsMap.get("testDocID").getOrElse("")
         val result = driver.replaceDocument(
           testDB,
           testCollection,
@@ -196,6 +205,7 @@ class DocumentClientTest extends FunSpec {
     }
     describe("Ensure replaced document has changed") {
       it("replaced document should have changed in the test collection") {
+        val testDocID = idsMap.get("testDocID").getOrElse("")
         val result = driver.getDocument(testDB, testCollection, testDocID)
         val res = Await.result(result, 5 second)
         res match {
@@ -211,6 +221,7 @@ class DocumentClientTest extends FunSpec {
     }
     describe("Remove a document by handle") {
       it("should remove one document from the test collection") {
+        val testDocID = idsMap.get("testDocID").getOrElse("")
         val result = driver.deleteDocument(testDB, testCollection, testDocID)
         val res = Await.result(result, 5 second)
         res match {
