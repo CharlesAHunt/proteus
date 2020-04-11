@@ -49,19 +49,23 @@ To configure your application's ArangoDB user, you will need to add the followin
 
 ### Client API
 
+```
             val client = DocumentClient(name = "test")
 
             val client = GraphClient(name = "test")
+```
 
 ### Database API
 
 Create a database:
 
+```
             client.createDatabase("dbName", List(User(username = "user", password = "pass", active = true)))
 
             client.getDatabaseList
 
             client.getCurrentDatabase
+```
 
 Delete a database:
 
@@ -69,41 +73,60 @@ client.deleteDatabase("dbName")
 
 ### Collection API
 
+```
             client.createCollection("dbName", testCollection)
 
             client.dropCollection("dbName", testCollection)
+```
 
 ### Document API
 
 Create a document (returning the document id as a string):
 
+```
             client.createDocument("dbName","testCollection","""{ "Hello": "World" }""")
+```
+
 
 Fetch all documents:
 
+```
             client.getAllDocuments("dbName", "testCollection")
+```
+
 
 Fetch a single document:
 
+```
             client.getDocument("dbName", "testCollection", "documentID")
+```
 
 Retrieve one or more document(s) using query via AQL:
 
+```
             client.getQueryResult("dbName", "testCollection", """{"query":"FOR u IN testCollection LIMIT 99 RETURN u", "count":true, "batchSize":2}""")
+```
 
 Retrieve one or more document(s) using query via AQL by cursor ID:
 
+```
             client.getQueryPendingResult("dbName", "testCollection", """cursor_id""")
+```
 
 AQL examples are provided in test DocumentClientTest source file.
 
 Update/Replace a document:
 
-client.replaceDocument("dbName", "testCollection", "documentID","""{ "Hello": "World" }""")
+```
+        client.replaceDocument("dbName", "testCollection", "documentID","""{ "Hello": "World" }""")
+```
 
 Remove a document:
 
+```
             client.deleteDocument("dbName", "testCollection", "documentID")
+```
+
 
 ### Graph API
 
