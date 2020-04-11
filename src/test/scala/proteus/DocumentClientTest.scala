@@ -107,8 +107,8 @@ class DocumentClientTest extends FunSpec {
         res match {
           case Left(err) => fail(err)
           case Right(ok) =>
-            println(res)
-            ok.head should include(s"/_api/document/$testCollection/")
+            //println(res)
+            ok.headOption.getOrElse("") should include(s"/_api/document/$testCollection/")
         }
       }
     }
