@@ -87,13 +87,11 @@ Create a document (returning the document id as a string):
             client.createDocument("dbName","testCollection","""{ "Hello": "World" }""")
 ```
 
-
 Fetch all documents:
 
 ```
             client.getAllDocuments("dbName", "testCollection")
 ```
-
 
 Fetch a single document:
 
@@ -126,7 +124,6 @@ Remove a document:
 ```
             client.deleteDocument("dbName", "testCollection", "documentID")
 ```
-
 
 ### Graph API
 
