@@ -42,7 +42,7 @@ Note: Versions of Proteus greater than 0.7.0 are for ArangoDB 3.6.+ and built wi
 
 To configure your application's ArangoDB user, you will need to create a ProteusConfig configuration object to initialize
   the document and graph clients.  You will most likely want to materialize the configuration case class from an application.conf
-  that looks like the following so you can materialize it to a case class using `Config.configuration` in your calling code:
+  that looks like the following so you can materialize it to a case class using `Config.configuration` in your client:
 ```
     proteus {
         host = "localhost"
@@ -53,7 +53,7 @@ To configure your application's ArangoDB user, you will need to create a Proteus
     }
 ```
 
-You can also create the ProteusConfig manually in your source like so:
+You can also create the ProteusConfig manually in your source as:
 
 ```
     ProteusConfig(

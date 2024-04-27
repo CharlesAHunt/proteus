@@ -1,4 +1,6 @@
 import scala.io.Source
+import com.scalapenos.sbt.prompt.SbtPrompt.autoImport._
+import xerial.sbt.Sonatype._
 
 name := "proteus"
 
@@ -8,7 +10,7 @@ description := "Scala driver for ArangoDB"
 
 version := Source.fromFile("./.version").getLines().toList.head
 
-scalaVersion := "2.13.1"
+scalaVersion := "2.13.13"
 
 publishMavenStyle := true
 
@@ -31,8 +33,6 @@ publishTo := {
    else
       Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
-
-import xerial.sbt.Sonatype._
 
 sonatypeProfileName := "com.charlesahunt"
 
@@ -61,26 +61,22 @@ resolvers ++= Seq(
 
 shellPrompt := { state => scala.Console.YELLOW + "[" + scala.Console.CYAN + Project.extract(state).currentProject.id + scala.Console.YELLOW + "]" + scala.Console.RED + " $ " + scala.Console.RESET }
 
-val circeVersion = "0.13.0-RC1"
+val circeVersion = "0.14.6"
 
 libraryDependencies ++= {
   Seq(
     "io.circe" %% "circe-core" % circeVersion,
     "io.circe" %% "circe-generic" % circeVersion,
     "io.circe" %% "circe-parser" % circeVersion,
-    "org.typelevel" %% "cats-core" % "2.1.0",
+    "org.typelevel" %% "cats-core" % "2.10.0",
     "org.typelevel" %% "cats-effect" % "2.0.0",
-    "ch.qos.logback" % "logback-classic" % "1.2.3",
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
+    "ch.qos.logback" % "logback-classic" % "1.5.6",
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
     "org.scalaj" %% "scalaj-http" % "2.4.2",
-    "com.github.pureconfig" %% "pureconfig" % "0.12.2",
-    "org.scalatest" %% "scalatest" % "3.1.0" % "test"
+    "com.github.pureconfig" %% "pureconfig" % "0.17.6",
+    "org.scalatest" %% "scalatest" % "3.2.18" % "test"
   )
 }
-
-wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.Nothing, Wart.DefaultArguments)
-
-import com.scalapenos.sbt.prompt.SbtPrompt.autoImport._
 
 promptTheme := com.scalapenos.sbt.prompt.PromptThemes.ScalapenosTheme
 
@@ -102,7 +98,6 @@ scalacOptions ++= Seq(
   "-Xlint:inaccessible", // Warn about inaccessible types in method signatures.
   "-Xlint:infer-any", // Warn when a type argument is inferred to be `Any`.
   "-Xlint:missing-interpolator", // A string literal appears to be missing an interpolator id.
-  "-Xlint:nullary-override", // Warn when non-nullary `def f()' overrides nullary `def f'.
   "-Xlint:nullary-unit", // Warn when nullary methods return Unit.
   "-Xlint:option-implicit", // Option.apply used implicit view.
   "-Xlint:package-object-classes", // Class or object defined in package object.
